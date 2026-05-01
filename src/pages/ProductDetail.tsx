@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PageLayout } from "@/components/PageLayout";
 import { ArtPreview } from "@/components/ArtPreview";
+import { ChalisaView } from "@/components/ChalisaView";
 import { ProductCard, ProductSummary } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +23,9 @@ interface FullProduct extends ProductSummary {
   stock_limit: number | null;
   sold_count: number | null;
   review_count?: number | null;
+  full_text_te?: string | null;
+  full_text_en?: string | null;
+  layout_mode?: string | null;
 }
 
 const LANGS = [
@@ -84,14 +88,22 @@ export default function ProductDetail() {
 
         <div className="grid lg:grid-cols-2 gap-12 mt-6">
           <div className="lg:sticky lg:top-24 self-start">
-            <ArtPreview
-              sanskrit={product.sanskrit}
-              meaning={meaning}
-              chapterRef={product.chapter_ref}
-              heroImageUrl={(product as any).hero_image_url}
-              size="lg"
-              frame={frame}
-            />
+            {product.layout_mode === "chalisa" && (product.full_text_te || product.full_text_en) ? (
+              <ChalisaView
+                text={(language === "english" && product.full_text_en) ? product.full_text_en : (product.full_text_te ?? product.full_text_en ?? "")}
+                title={product.title}
+                heroImageUrl={(product as any).hero_image_url}
+              />
+            ) : (
+              <ArtPreview
+                sanskrit={product.sanskrit}
+                meaning={meaning}
+                chapterRef={product.chapter_ref}
+                heroImageUrl={(product as any).hero_image_url}
+                size="lg"
+                frame={frame}
+              />
+            )}
           </div>
 
           <div>

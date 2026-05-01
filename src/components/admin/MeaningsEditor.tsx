@@ -19,10 +19,13 @@ type ProductRow = {
   deeper_meaning: string | null;
   deeper_meaning_te: string | null;
   hero_image_url: string | null;
+  layout_mode: string | null;
+  full_text_te: string | null;
+  full_text_en: string | null;
 };
 
 type Edits = Partial<Pick<ProductRow,
-  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te" | "hero_image_url"
+  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te" | "hero_image_url" | "layout_mode" | "full_text_te" | "full_text_en"
 >>;
 
 export function MeaningsEditor() {
@@ -39,7 +42,7 @@ export function MeaningsEditor() {
     setLoading(true);
     const { data, error } = await supabase
       .from("products")
-      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te,hero_image_url")
+      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te,hero_image_url,layout_mode,full_text_te,full_text_en")
       .order("category")
       .order("sort_order");
     if (error) toast.error(error.message);
@@ -203,6 +206,44 @@ export function MeaningsEditor() {
                   maxLength={2000}
                 />
               </Field>
+            </div>
+
+            <div className="mt-5 pt-5 border-t border-border space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="text-xs uppercase tracking-wider text-brand-mid">Layout mode</label>
+                <Select
+                  value={valueOf(row, "layout_mode") || "verse"}
+                  onValueChange={(v) => setField(row.id, "layout_mode", v)}
+                >
+                  <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="verse">Verse (short quote)</SelectItem>
+                    <SelectItem value="chalisa">Chalisa / scripture (long text)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-brand-mid">Use "Chalisa" for full Hanuman Chalisa, Sahasranamam, etc.</p>
+              </div>
+
+              {(valueOf(row, "layout_mode") === "chalisa") && (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Field label="Full text (Telugu) — paste the complete chalisa / stotram">
+                    <Textarea
+                      value={valueOf(row, "full_text_te")}
+                      onChange={(e) => setField(row.id, "full_text_te", e.target.value)}
+                      rows={14}
+                      className="telugu text-sm"
+                    />
+                  </Field>
+                  <Field label="Full text (English / transliteration) — optional">
+                    <Textarea
+                      value={valueOf(row, "full_text_en")}
+                      onChange={(e) => setField(row.id, "full_text_en", e.target.value)}
+                      rows={14}
+                      className="text-sm"
+                    />
+                  </Field>
+                </div>
+              )}
             </div>
           </div>
         ))}

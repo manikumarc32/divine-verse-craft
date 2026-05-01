@@ -1,0 +1,117 @@
+import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface ChalisaViewProps {
+  text: string;
+  title?: string;
+  heroImageUrl?: string | null;
+  className?: string;
+}
+
+// Section headings we want to style distinctly (Telugu + Devanagari + English fallbacks)
+const HEADINGS = new Set([
+  "దోహా", "ధ్యానం", "చౌపాఈ", "చౌపాఇ",
+  "दोहा", "ध्यानम्", "ध्यानम", "चौपाई",
+  "Doha", "Dhyanam", "Chaupai",
+]);
+
+interface Block {
+  kind: "heading" | "verse";
+  lines: string[];
+  number?: string;
+}
+
+function parse(text: string): Block[] {
+  const paragraphs = text.replace(/\r\n/g, "\n").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const blocks: Block[] = [];
+  for (const para of paragraphs) {
+    const lines = para.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 1 && HEADINGS.has(lines[0])) {
+      blocks.push({ kind: "heading", lines });
+      continue;
+    }
+    // Detect a trailing verse number e.g. "॥ 1 ॥" or "॥1॥"
+    const last = lines[lines.length - 1];
+    const m = last.match(/॥\s*(\d+)\s*॥\s*$/);
+    const number = m ? m[1] : undefined;
+    blocks.push({ kind: "verse", lines, number });
+  }
+  return blocks;
+}
+
+export function ChalisaView({ text, title, heroImageUrl, className }: ChalisaViewProps) {
+  const blocks = useMemo(() => parse(text), [text]);
+
+  return (
+    <div className={cn("rounded-lg overflow-hidden bg-gradient-cream border border-border shadow-soft", className)}>
+      {heroImageUrl && (
+        <img
+          src={heroImageUrl}
+          alt={title ?? "Sacred art"}
+          loading="lazy"
+          className="w-full h-72 object-cover"
+        />
+      )}
+
+      <div className="px-5 md:px-10 py-8 chalisa-print">
+        <div className="text-center mb-6 print:mb-4">
+          <span className="text-3xl text-accent font-serif">ॐ</span>
+          {title && (
+            <h2 className="font-serif text-2xl md:text-3xl mt-2 text-brand-dark">{title}</h2>
+          )}
+          <div className="gold-divider-sm mx-auto mt-3" />
+        </div>
+
+        <div className="max-w-2xl mx-auto telugu text-brand-dark space-y-6 leading-loose text-[1.05rem] md:text-[1.15rem]">
+          {blocks.map((b, i) => {
+            if (b.kind === "heading") {
+              return (
+                <div key={i} className="text-center pt-2">
+                  <h3 className="font-serif text-xl md:text-2xl text-accent tracking-wide">
+                    {b.lines[0]}
+                  </h3>
+                </div>
+              );
+            }
+            return (
+              <div key={i} className="text-center">
+                {b.lines.map((line, j) => {
+                  // strip trailing verse number — render it separately
+                  const clean = j === b.lines.length - 1 && b.number
+                    ? line.replace(/॥\s*\d+\s*॥\s*$/, "").trim()
+                    : line;
+                  return (
+                    <p key={j} className="leading-relaxed">
+                      {clean}
+                    </p>
+                  );
+                })}
+                {b.number && (
+                  <p className="mt-1 text-sm text-accent font-semibold">॥ {b.number} ॥</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="text-center mt-8">
+          <span className="text-2xl text-accent font-serif">ॐ</span>
+        </div>
+      </div>
+
+      <div className="px-5 md:px-10 pb-6 flex justify-center print:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.print()}
+          className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+        >
+          <Printer className="h-4 w-4 mr-2" />
+          Print / Save as PDF
+        </Button>
+      </div>
+    </div>
+  );
+}

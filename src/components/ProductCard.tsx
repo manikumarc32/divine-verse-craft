@@ -26,6 +26,7 @@ export interface ProductSummary {
   deeper_meaning?: string | null;
   deeper_meaning_te?: string | null;
   hero_image_url?: string | null;
+  layout_mode?: string | null;
   rating: number;
   stock_limit?: number | null;
   sold_count?: number | null;
