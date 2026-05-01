@@ -57,6 +57,12 @@ export const translations = {
       "Rama the dharmic king, Sita the embodiment of devotion, Lakshmana the loyal brother, and Hanuman the perfect devotee — together they teach us love, sacrifice, and surrender.",
     "ram.mission.body":
       "From Ram Darbar portraits to Hanuman Chalisa calligraphy, our Ramayana art honours every devotee whose home is a temple.",
+    "verse.whatMeans": "What does this mean?",
+    "verse.readFull": "Read the full meaning",
+    "verse.deeper": "The deeper meaning",
+    "verse.inTelugu": "తెలుగులో — In Telugu",
+    "verse.inEnglish": "In English",
+    "verse.close": "Close",
   },
   te: {
     "hero.eyebrow": "ॐ   రెండు మహాకావ్యాలు · ఒకే శాశ్వత ధర్మం   ॐ",
@@ -114,6 +120,12 @@ export const translations = {
       "ధర్మ రాజు రాముడు, భక్తికి ప్రతీక సీత, విశ్వాస సోదరుడు లక్ష్మణుడు, పరిపూర్ణ భక్తుడు హనుమంతుడు — ప్రేమ, త్యాగం, శరణాగతిని బోధిస్తారు.",
     "ram.mission.body":
       "రామ దర్బార్ చిత్రాల నుండి హనుమాన్ చాలీసా కాలిగ్రఫీ వరకు, మా రామాయణ కళ ప్రతి భక్తుడి ఇంటిని గుడిగా మారుస్తుంది.",
+    "verse.whatMeans": "దీని అర్థం ఏమిటి?",
+    "verse.readFull": "పూర్తి అర్థం చదవండి",
+    "verse.deeper": "లోతైన అర్థం",
+    "verse.inTelugu": "తెలుగులో",
+    "verse.inEnglish": "In English — ఆంగ్లంలో",
+    "verse.close": "మూసివేయి",
   },
 } as const;
 
