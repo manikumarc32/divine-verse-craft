@@ -421,6 +421,7 @@ export type Database = {
           deeper_meaning_te: string | null
           description: string | null
           english_meaning: string | null
+          hero_image_url: string | null
           id: string
           is_active: boolean | null
           rating: number | null
@@ -444,6 +445,7 @@ export type Database = {
           deeper_meaning_te?: string | null
           description?: string | null
           english_meaning?: string | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
           rating?: number | null
@@ -467,6 +469,7 @@ export type Database = {
           deeper_meaning_te?: string | null
           description?: string | null
           english_meaning?: string | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
           rating?: number | null
