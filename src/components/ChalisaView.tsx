@@ -17,8 +17,10 @@ const HEADINGS = new Set([
   "Doha", "Dhyanam", "Chaupai",
 ]);
 
+const MEANING_PREFIX = /^(అర్థం|అర్ధం|Meaning|अर्थ)\s*[:：]\s*/;
+
 interface Block {
-  kind: "heading" | "verse";
+  kind: "heading" | "verse" | "meaning";
   lines: string[];
   number?: string;
 }
@@ -32,10 +34,19 @@ function parse(text: string): Block[] {
       blocks.push({ kind: "heading", lines });
       continue;
     }
-    // Detect a trailing verse number e.g. "॥ 1 ॥" or "॥1॥"
-    const last = lines[lines.length - 1];
-    const m = last.match(/॥\s*(\d+)\s*॥\s*$/);
-    const number = m ? m[1] : undefined;
+    if (MEANING_PREFIX.test(lines[0])) {
+      // Strip prefix from first line, keep the rest
+      const cleanedFirst = lines[0].replace(MEANING_PREFIX, "");
+      const meaningLines = [cleanedFirst, ...lines.slice(1)].filter(Boolean);
+      blocks.push({ kind: "meaning", lines: meaningLines });
+      continue;
+    }
+    // Detect verse number on any line e.g. "॥ 1 ॥", "॥1॥", or Telugu digits "౧"
+    let number: string | undefined;
+    for (const ln of lines) {
+      const m = ln.match(/॥\s*([\d౦-౯०-९]+)\s*॥/);
+      if (m) { number = m[1]; break; }
+    }
     blocks.push({ kind: "verse", lines, number });
   }
   return blocks;
@@ -75,13 +86,27 @@ export function ChalisaView({ text, title, heroImageUrl, className }: ChalisaVie
                 </div>
               );
             }
+            if (b.kind === "meaning") {
+              return (
+                <div
+                  key={i}
+                  className="chalisa-meaning text-left text-[0.95rem] md:text-base text-brand-mid leading-relaxed border-l-2 border-accent/40 pl-4 ml-0 md:ml-2"
+                >
+                  <span className="text-accent font-semibold mr-1">అర్థం:</span>
+                  {b.lines.map((line, j) => (
+                    <span key={j}>{j === 0 ? " " : " "}{line}</span>
+                  ))}
+                </div>
+              );
+            }
             return (
               <div key={i} className="text-center">
                 {b.lines.map((line, j) => {
-                  // strip trailing verse number — render it separately
-                  const clean = j === b.lines.length - 1 && b.number
-                    ? line.replace(/॥\s*\d+\s*॥\s*$/, "").trim()
+                  // strip trailing verse number from whichever line carries it
+                  const clean = b.number
+                    ? line.replace(/॥\s*[\d౦-౯०-९]+\s*॥\s*$/, "").replace(/॥\s*[\d౦-౯०-९]+\s*॥/, "").trim()
                     : line;
+                  if (!clean) return null;
                   return (
                     <p key={j} className="leading-relaxed">
                       {clean}
