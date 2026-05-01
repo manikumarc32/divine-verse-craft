@@ -1,16 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { PageLayout } from "@/components/PageLayout";
-import { ArtPreview } from "@/components/ArtPreview";
 import { ProductCard, ProductSummary } from "@/components/ProductCard";
 import { LotusIcon } from "@/components/icons/LotusIcon";
+import { MotionSection } from "@/components/MotionSection";
+import { IndiaBanner } from "@/components/IndiaBanner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Star, Truck, Award, ShieldCheck, Undo2, Leaf } from "lucide-react";
 
+const ROTATING = [
+  { sans: "योगः कर्मसु कौशलम्", ref: "Bhagavad Gita 2.50" },
+  { sans: "वासुदेवः सर्वम् इति", ref: "Bhagavad Gita 7.19" },
+  { sans: "सर्वधर्मान् परित्यज्य", ref: "Bhagavad Gita 18.66" },
+];
+
 export default function Home() {
+  const { t } = useLanguage();
   const [gita, setGita] = useState<ProductSummary[]>([]);
   const [portraits, setPortraits] = useState<ProductSummary[]>([]);
+  const [verseIdx, setVerseIdx] = useState(0);
 
   useEffect(() => {
     document.title = "DivineVerse Art — Sacred Wall Art From the Bhagavad Gita";
@@ -24,54 +35,109 @@ export default function Home() {
         .order("sort_order").limit(3);
       setPortraits((p ?? []) as unknown as ProductSummary[]);
     })();
+
+    const interval = setInterval(() => setVerseIdx((i) => (i + 1) % ROTATING.length), 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <PageLayout>
       {/* Hero */}
-      <section className="bg-gradient-hero text-brand-cream relative overflow-hidden">
-        <div className="container py-20 md:py-28 text-center relative z-10">
-          <p className="text-accent text-sm tracking-[0.3em] mb-4">ॐ &nbsp; SACRED WALL ART &nbsp; ॐ</p>
-          <h1 className="font-serif text-4xl md:text-6xl leading-tight mb-2">
-            Ancient Wisdom <span className="text-accent">For Modern Walls</span>
-          </h1>
-          <p className="sanskrit text-xl md:text-2xl italic text-brand-cream/80 mt-6 mb-8">
-            "योगः कर्मसु कौशलम्"
-          </p>
-          <p className="text-brand-cream/70 max-w-xl mx-auto mb-10">
-            Yoga is skill in action — Bhagavad Gita 2.50. Bring centuries of devotion onto your walls with verses, portraits, and hand-written calligraphy printed in the UK.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild size="lg" className="bg-gradient-saffron text-primary-foreground border-0 h-12 px-8">
-              <Link to="/shop">Shop Wall Art</Link>
+      <section className="bg-gradient-hero text-brand-cream relative overflow-hidden grain">
+        {/* Floating Om accents */}
+        <span className="absolute top-16 left-8 text-accent/20 text-7xl float-gentle pointer-events-none select-none hidden md:block">ॐ</span>
+        <span className="absolute bottom-20 right-12 text-accent/15 text-9xl spin-slow pointer-events-none select-none hidden md:block">ॐ</span>
+
+        <div className="container py-24 md:py-32 text-center relative z-10">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-accent text-xs md:text-sm tracking-[0.4em] mb-5"
+          >
+            {t("hero.eyebrow")}
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="font-serif text-5xl md:text-7xl leading-[1.05] mb-4 text-shadow-soft"
+          >
+            {t("hero.title.a")}<br />
+            <span className="text-accent italic">{t("hero.title.b")}</span>
+          </motion.h1>
+
+          <div className="h-14 mt-8 mb-6 flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={verseIdx}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.6 }}
+                className="text-center"
+              >
+                <p className="sanskrit text-xl md:text-2xl text-brand-cream/85">{ROTATING[verseIdx].sans}</p>
+                <p className="text-[11px] tracking-widest uppercase text-accent/80 mt-1">{ROTATING[verseIdx].ref}</p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-brand-cream/70 max-w-xl mx-auto mb-10 text-base md:text-lg"
+          >
+            {t("hero.tagline")}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <Button asChild size="lg" className="bg-gradient-saffron text-primary-foreground border-0 h-12 px-8 shadow-elegant">
+              <Link to="/shop">{t("hero.cta.shop")}</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground h-12 px-8">
-              <Link to="/custom-builder">Custom Quote Builder</Link>
+              <Link to="/custom-builder">{t("hero.cta.custom")}</Link>
             </Button>
-          </div>
-          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-14">
-            <Stat n="150+" l="Sacred Designs" />
-            <Stat n="4.8 ★" l="Customer Rating" />
-            <Stat n="🇬🇧" l="UK Printed" />
+          </motion.div>
+
+          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-16">
+            <Stat n="150+" l={t("stat.designs")} />
+            <Stat n="4.8 ★" l={t("stat.rating")} />
+            <Stat n="🇬🇧" l={t("stat.uk")} />
           </div>
         </div>
       </section>
 
       {/* Featured Gita Quotes */}
-      <section className="container py-20">
+      <MotionSection className="container py-20">
         <div className="text-center mb-12">
           <LotusIcon className="h-10 w-10 text-primary mx-auto mb-4" />
-          <h2 className="font-serif text-3xl md:text-4xl mb-2">Featured Gita Quotes</h2>
+          <h2 className="font-serif text-3xl md:text-5xl mb-2">{t("section.featured")}</h2>
           <div className="gold-divider-sm mx-auto" />
-          <p className="text-brand-mid mt-3">Timeless verses, beautifully framed for daily inspiration</p>
+          <p className="text-brand-mid mt-3">{t("section.featured.sub")}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {gita.map((p) => <ProductCard key={p.id} product={p} />)}
+          {gita.map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+            >
+              <ProductCard product={p} />
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </MotionSection>
 
       {/* Multilingual banner */}
-      <section className="bg-accent/15 py-16 border-y border-accent/30">
+      <MotionSection className="bg-accent/15 py-16 border-y border-accent/30">
         <div className="container grid md:grid-cols-2 gap-10 items-center">
           <div>
             <span className="chip bg-accent text-accent-foreground border-accent mb-4">
@@ -81,54 +147,77 @@ export default function Home() {
             <p className="text-brand-mid mb-5">Every Gita quote can be ordered with the meaning printed in Sanskrit, Telugu, or English — without losing the original verse.</p>
             <div className="flex flex-wrap gap-2">
               <span className="chip bg-card border-border">संस्कृत Sanskrit</span>
-              <span className="chip bg-card border-border">తెలుగు Telugu</span>
+              <span className="chip bg-card border-border telugu">తెలుగు Telugu</span>
               <span className="chip bg-card border-border">🇬🇧 English</span>
             </div>
           </div>
-          <div className="bg-card rounded-xl p-6 shadow-lift border border-border">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-card rounded-xl p-6 shadow-lift border border-border"
+          >
             <p className="text-xs uppercase tracking-widest text-accent mb-3">Karma Yoga · Ch 2.47</p>
             <p className="sanskrit text-xl mb-4">कर्मण्येवाधिकारस्ते मा फलेषु कदाचन</p>
             <div className="gold-divider-sm" />
             <p className="text-sm italic text-brand-mid mt-3">English: "You have the right to perform your duties, but never to the fruits of action."</p>
-            <p className="text-sm italic text-brand-mid mt-2">తెలుగు: "మీకు మీ కర్తవ్యాన్ని నిర్వహించే హక్కు ఉంది, కాని ఫలాలపై హక్కు లేదు."</p>
-          </div>
+            <p className="text-sm italic text-brand-mid mt-2 telugu">తెలుగు: "మీకు మీ కర్తవ్యాన్ని నిర్వహించే హక్కు ఉంది, కానీ ఫలాలపై హక్కు లేదు."</p>
+          </motion.div>
         </div>
-      </section>
+      </MotionSection>
 
       {/* God Portraits */}
-      <section className="container py-20">
+      <MotionSection className="container py-20">
         <div className="text-center mb-12">
           <LotusIcon className="h-10 w-10 text-primary mx-auto mb-4" />
-          <h2 className="font-serif text-3xl md:text-4xl mb-2">Hindu God Portraits</h2>
+          <h2 className="font-serif text-3xl md:text-5xl mb-2">{t("section.portraits")}</h2>
           <div className="gold-divider-sm mx-auto" />
-          <p className="text-brand-mid mt-3">Devotional art of beloved deities</p>
+          <p className="text-brand-mid mt-3">{t("section.portraits.sub")}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {portraits.map((p) => <ProductCard key={p.id} product={p} />)}
+          {portraits.map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+            >
+              <ProductCard product={p} />
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </MotionSection>
 
       {/* Testimonials */}
-      <section className="bg-brand-dark text-brand-cream py-20">
+      <MotionSection className="bg-brand-dark text-brand-cream py-20">
         <div className="container">
-          <h2 className="font-serif text-3xl md:text-4xl text-center mb-12">Words from Our Devotees</h2>
+          <h2 className="font-serif text-3xl md:text-5xl text-center mb-12">{t("section.testimonials")}</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
               { name: "Priya S.", text: "The Karma Yoga print transformed my meditation corner. The Sanskrit calligraphy is stunning." },
               { name: "Arjun M.", text: "Ordered the hand-written Gayatri Mantra — heirloom quality, my parents were moved to tears." },
               { name: "Lakshmi R.", text: "Custom quote builder let me print my late grandmother's favourite shloka. Beyond grateful." },
-            ].map((t) => (
-              <div key={t.name} className="bg-brand-dark/60 border border-brand-cream/10 p-6 rounded-xl">
+            ].map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="bg-brand-dark/60 border border-brand-cream/10 p-6 rounded-2xl"
+              >
                 <div className="flex gap-0.5 text-accent mb-3">
                   {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
                 </div>
                 <p className="text-brand-cream/80 italic mb-4">"{t.text}"</p>
                 <p className="text-accent font-serif">— {t.name}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </MotionSection>
 
       {/* Trust badges */}
       <section className="container py-12">
@@ -147,6 +236,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <IndiaBanner />
     </PageLayout>
   );
 }

@@ -1,101 +1,153 @@
 
-# DivineVerse Art — Phase 1 Build Plan
+# Phase 2 — DivineVerse Art
 
-A spiritual ecommerce site for Bhagavad Gita quote art, Hindu god portraits, and hand-written calligraphy prints. Cream/saffron/gold aesthetic with Sanskrit and Om motifs throughout.
+Builds on Phase 1. Adds 7 new pages, stock + bundle systems, Telugu language toggle, FAQ chatbot, and a site-wide modernisation pass (fonts, scroll animations, micro-interactions).
 
-## Design system
+---
 
-Set up the global theme so every page inherits it automatically:
+## 1. Visual modernisation pass (applied first, site-wide)
 
-- **Colors** (HSL tokens in `index.css`): saffron primary `#D4760A`, cream bg `#FFFAF3`, gold accent `#B8942D`, dark brown headings `#2D1B0E`, mid brown body `#5C4033`, purple `#6B3FA0` for the Hand-Written collection.
-- **Typography**: Georgia serif for headings, system sans-serif for body.
-- **Components**: 12px rounded cards, soft shadows, saffron gradient buttons with hover lift, gold gradient dividers, reusable `LotusIcon` and `OmDivider` components.
-- **Product preview component**: a single `ArtPreview` component renders the Sanskrit verse, gold divider, meaning text, chapter ref, and Om symbol on a cream "framed" background. Used everywhere a product image would normally appear (cards, detail page, cart, custom builder).
+**Why first:** every new page inherits the upgraded look, so we don't restyle twice.
 
-## Pages (12)
+- **Fonts:** Add Fraunces (display, for h1/h2) + Inter (body) via Google Fonts. Keep Sanskrit font stack. Update `index.css` font tokens.
+- **Framer Motion** (`framer-motion`) for scroll-reveal, page transitions, stagger.
+- **Navbar:** glass blur + shrink-on-scroll (height 64→56px), subtle border glow on scroll.
+- **Hero:** larger editorial type, animated gradient background, gentle floating Om/lotus accents, Sanskrit verse fades through 3 rotating quotes.
+- **Product cards:** image-zoom on hover, frame glow, lift shadow, animated price reveal.
+- **Section reveals:** fade-up + stagger on scroll using `whileInView`.
+- **Animated gold divider:** shimmer animation on the existing `.gold-divider`.
+- **Page transitions:** 200ms fade between routes via `AnimatePresence` in `App.tsx`.
+- **Buttons:** existing `btn-saffron` gets a subtle shine sweep on hover.
 
-```text
-/                       Homepage
-/shop                   Shop with filters & search
-/product/:slug          Product detail with live preview & options
-/custom-builder         Custom Quote Builder
-/checkout               Checkout (+ /checkout/success)
-/login  /register       Auth pages
-/account                Dashboard (Orders, Wishlist, Settings, Admin*)
-/account/orders         Order history
-/wishlist               Wishlisted products
-/about-gita             About the Bhagavad Gita
-/blog                   Blog index
-/admin                  Admin dashboard (admin role only)
+No layout breaking changes — purely additive polish.
+
+---
+
+## 2. Bundles (new `/bundles` route)
+
+**DB (migration):**
 ```
+bundles(id, slug, title, description, bundle_price, badge, sort_order, is_active)
+bundle_items(id, bundle_id, product_id, quantity)
+```
+Public read RLS; admin manage via `is_admin()`.
 
-Cart is a slide-out drawer available from the navbar on every page (not a route).
+Seed 4 bundles referencing existing product slugs:
+- Karma Collection (3 Gita posters)
+- Divine Trinity (Krishna + Shiva + Ganesh)
+- Meditation Set (Om + Lotus + Mandala)
+- Complete Gita (all 7 Gita posters)
 
-### Page contents (highlights)
+**Pricing:** `original_price` is computed at render time as `sum(bundle_items.product.base_price)` so discounts stay accurate as you edit products. Saving badge = `original − bundle_price`.
 
-- **Homepage**: dark-brown hero with Om subtitle, gold-accent headline, italic Sanskrit quote, dual CTAs, 3 stats. Featured Gita Quotes (3 cards), Multilingual Feature gold banner with Sanskrit/Telugu/English example card, God Portraits (3 cards), dark-brown testimonials (3), trust badges row, newsletter signup, 5-column dark-brown footer.
-- **Shop**: search bar, category pills (All, Gita Quotes, God Portraits, Symbols, Hand-Written-purple), sort dropdown, live product count, auto-fill grid (min 270px) of product cards with badge, wishlist heart, chapter ref, stars, price-from, Add to Cart.
-- **Product detail**: two-column layout. Left = sticky `ArtPreview` reflecting current selections. Right = title, rating, dynamic price, selectors for **Language** (Telugu/English/Sanskrit — switches preview meaning text), **Size** (A4/A3+£8/A2+£18), **Material** (Poster / Canvas+£15 / Cloth Tapestry+£12 / Eco+£3), **Frame** (None / Black+£12 / Wood+£15 / White+£12 / Gold+£20), Add to Cart, Wishlist, shipping info card, Description/Reviews tabs, related products row.
-- **Custom Quote Builder**: left form (Sanskrit textarea, meaning textarea, font selector, background swatches, frame, size); right sticky live preview. Base £22 + size/frame add-ons.
-- **Cart drawer**: right overlay (92% width on mobile), item count, Om empty state, line items with thumbnail mini-preview / options / qty / remove, subtotal + shipping note, Checkout button.
-- **Checkout**: shipping form, shipping zone selector with the 3 zones and free-shipping thresholds, sticky order summary, "Pay with Stripe 🔒" → Stripe Checkout → success screen on return.
-- **Account dashboard**: grid cards for Order History, Wishlist, Settings, and Admin (Admin card only renders if the signed-in user has the admin role).
-- **Wishlist**: product grid + empty state.
-- **About Bhagavad Gita**: max-width 780px, 5 sections (What is the Gita, Core Teachings, Why Sacred Wall Art, Our Mission, Authentic Sources).
-- **Blog**: 6 seeded post cards (category badge, date, read time, title, excerpt). Detail pages can come in Phase 2.
-- **Admin dashboard** (full): stats overview (revenue, orders, products, users), products CRUD table, orders table with status updates, blog post editor.
+**Page:** hero, 4 bundle cards with thumbnail strip (3 mini ArtPreviews), strikethrough original, big bundle price, "Save £X" badge, "Add Bundle to Cart" button (adds each item with default size/material).
 
-## Backend (Lovable Cloud / Supabase)
+---
 
-### Tables
-`products`, `sizes`, `materials`, `frames`, `shipping_zones`, `profiles`, `user_roles`, `wishlists`, `reviews`, `orders`, `order_items`, `blog_posts`.
+## 3. India coming-soon (new `/india` route)
 
-`products` includes: slug, title, category, base_price, badge, chapter_ref, sanskrit, english_meaning, telugu_meaning, stock_limit (nullable), sort_order. Hand-Written items use stockLimit 50/30/15.
+**DB:** `india_signups(id, email unique, created_at)`. Public insert allowed; admin read.
 
-### Auth & roles
-- Email/password auth via Supabase Auth.
-- `user_roles` table with `role` enum-like check (`customer`/`admin`/`super_admin`).
-- `has_role(_user_id, _role)` security-definer function used in all role checks (no recursion).
-- Trigger creates a `profiles` row + a default `customer` role on signup.
-- First admin assigned manually after your first signup (you'll insert into `user_roles` via the database tool).
+**Page sections:**
+- Hero: 🇮🇳 flag, heading, description, email capture → inserts to `india_signups`, success toast.
+- Note line: "Prices shown in ₹ (INR) — checkout in INR launches with the India site."
+- INR price preview table (5 rows as specified).
+- "Free delivery across India on orders above ₹1999."
+- Features grid (4 tiles): local printing, fast delivery, UPI, multilingual.
 
-### RLS policies
-- Public read on `products`, `blog_posts`, `shipping_zones`, `sizes`, `materials`, `frames`, `reviews`.
-- Users read/write their own `profiles`, `wishlists`, `orders`, `order_items`, can insert `reviews`.
-- Admins (via `has_role`) get full write on `products`, `blog_posts`, and read/update on all `orders`.
-- `user_roles`: users read their own; only admins can insert/update/delete.
+**Homepage banner:** narrow saffron strip above the footer's newsletter, "Coming Soon to India 🇮🇳 — Join the waitlist", links to `/india`.
 
-### Seed data
-All 18 products from the spec with their Sanskrit, chapter refs, prices, badges, and stock limits. Plus the 3 size options, 4 materials, 5 frames, 3 shipping zones, ~6 blog posts, a few starter reviews.
+---
 
-## Stripe checkout
+## 4. Stock management
 
-Using Lovable's built-in Stripe payments integration:
-1. After the plan is approved I'll run the eligibility check and enable built-in Stripe.
-2. Create Stripe products mirroring the catalog (or use one-off price line items computed from cart — recommended so size/material/frame/custom items work cleanly).
-3. Edge function `create-checkout` builds a Stripe Checkout Session from the cart and returns the URL.
-4. Edge function `stripe-webhook` listens for `checkout.session.completed` and writes `orders` + `order_items` rows.
-5. `/checkout/success` shows the Om confirmation screen and links to order history.
+**DB migration:** `products` already has `stock_limit`; add `sold_count int default 0`.
 
-Test mode works immediately so you can place fake orders end-to-end. Live payments require Stripe account verification later.
+**Decrement logic:** done in the existing `stripe-webhook` edge function on `checkout.session.completed`, inside a transaction:
+- For each order_item, `update products set sold_count = sold_count + qty, is_active = (sold_count + qty < stock_limit) where id = ?`.
+- No DB trigger — keeps test/admin inserts safe and lets us reverse on refunds later.
 
-## Mobile responsiveness
+**`<StockBar />` component:** progress bar (sold/total), "X of Y remaining" label, red "Only X left!" when ≤5, "SOLD OUT" badge + disabled CTA at 0. Animated fill on mount.
 
-Single column under 768px, hamburger nav, cart drawer at 92% width, all touch targets ≥44px, sticky panels collapse to inline on small screens.
+**Where shown:** Shop card and ProductDetail — only when `stock_limit !== null`. Spec says hand-written category; we'll show whenever `stock_limit` is set so admin controls it per product.
+
+---
+
+## 5. Telugu language toggle
+
+- `LanguageProvider` in `src/hooks/useLanguage.tsx` with React context, persisted in `localStorage`.
+- `EN | తెలుగు` pill in navbar (desktop + mobile menu).
+- `src/lib/i18n.ts` typed dictionary covering ~30 keys: hero headline, section titles ("Featured Gita Quotes", "Hindu God Portraits", "Words from Our Devotees"), About-Gita body (3 paragraphs from your spec), CTAs.
+- Product cards and detail page swap `english_meaning` → `telugu_meaning` when Telugu active (data already exists).
+- **Always English:** navbar links, footer, checkout, legal, admin, blog.
+
+No `translations` table — dictionary is faster and type-safe. Easy to add later if non-devs need to edit copy.
+
+---
+
+## 6. FAQ chatbot (floating, all pages)
+
+- `<ChatWidget />` mounted in `PageLayout`.
+- Floating 💬 bubble bottom-right, opens animated panel (Framer Motion scale+slide).
+- Header "DivineVerse Support", greeting "Namaste! 🙏 How can we help you today?".
+- 4 quick-reply buttons with the exact answers from your spec.
+- Text input does **keyword matching** against an FAQ map (delivery/return/size/custom/contact/india keywords → matching answer). Unknown → "I'm not sure — try a quick reply above, or email hello@divineverseart.com."
+- Conversation kept in component state only (not persisted).
+
+---
+
+## 7. Admin enhancement
+
+- Products table gains `stock_limit` + `sold_count` columns (sold_count read-only).
+- Inline edit for `stock_limit` (number input + save).
+- Hand-written category rows render a purple `chip` badge.
+
+---
+
+## 8. Legal + supporting pages
+
+New routes, all linked from footer (replace `#` placeholders):
+- `/privacy` — GDPR-aware Privacy Policy (data collected, lawful basis, rights, contact).
+- `/terms` — UK e-commerce T&Cs (orders, pricing, delivery, IP, liability, governing law).
+- `/refunds` — 30-day returns, conditions, process, refund timing, custom-order exclusions.
+- `/contact` — email + form (writes to a new `contact_messages` table; admin reads).
+- `/faq` — sectioned FAQ mirroring chatbot answers + more.
+- `/size-guide` — visual A4/A3/A2 rectangles at relative scale with cm dimensions; 4 material cards (Poster 200gsm, Canvas 340gsm, Cloth Tapestry, Eco Paper 180gsm) with descriptions.
+
+---
+
+## 9. Navigation updates
+
+Navbar (desktop): Shop · Bundles · Custom · About Gita · Blog · `EN|తె` toggle.
+Footer: add Bundles, India, Size Guide, Contact, FAQ, Privacy, Terms, Refunds.
+
+---
 
 ## Technical notes
 
-- React Router routes added in `App.tsx`. Admin route guarded by a `RequireAdmin` wrapper that calls `has_role`.
-- Cart state in a Zustand store, persisted to localStorage; on login it merges with a `cart_items` table (optional, can defer).
-- React Query for all Supabase reads.
-- Zod schemas for checkout form, custom builder, and admin forms.
-- Pricing helper `calculatePrice(base, size, material, frame)` shared between product page, custom builder, cart, and Stripe session creation (server-side recompute prevents tampering).
-- `ArtPreview` is a pure component driven by props so it's identical across product page, cart, and builder.
+**New deps:** `framer-motion`.
 
-## Out of scope for Phase 1
+**New files:**
+- `src/components/ChatWidget.tsx`, `StockBar.tsx`, `LanguageToggle.tsx`, `MotionSection.tsx` (scroll-reveal wrapper), `BundleCard.tsx`
+- `src/hooks/useLanguage.tsx`
+- `src/lib/i18n.ts`, `src/lib/bundles.ts`
+- `src/pages/Bundles.tsx`, `India.tsx`, `Privacy.tsx`, `Terms.tsx`, `Refunds.tsx`, `Contact.tsx`, `FAQ.tsx`, `SizeGuide.tsx`
 
-- Blog post detail pages (index only).
-- Per-user OAuth (Google/Apple) sign-in.
-- Live Stripe verification (test mode only).
-- AI-generated product imagery (using text-rendered previews instead).
-- Multi-currency / i18n beyond the 3-language meaning toggle on Gita products.
+**Migrations (one file):**
+- `bundles`, `bundle_items`, `india_signups`, `contact_messages` tables + RLS
+- `alter table products add column sold_count int not null default 0`
+- Seed 4 bundles + their items
+
+**Edge function:** update `stripe-webhook` to decrement stock on `paid`.
+
+**Out of scope (deferred):**
+- Real INR checkout / Stripe India.
+- AI chatbot (using keyword match per your choice).
+- Translations DB table (using typed dictionary).
+- DB trigger for stock (using webhook for safety).
+
+---
+
+## What you'll get
+
+12 routes → 19 routes. New: `/bundles`, `/india`, `/privacy`, `/terms`, `/refunds`, `/contact`, `/faq`, `/size-guide`. Plus stock bars, Telugu toggle, floating chatbot, and a noticeably more modern, animated feel across the whole site.

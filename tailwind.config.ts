@@ -8,14 +8,13 @@ export default {
     container: {
       center: true,
       padding: "1.5rem",
-      screens: {
-        "2xl": "1280px",
-      },
+      screens: { "2xl": "1280px" },
     },
     extend: {
       fontFamily: {
-        serif: ['Georgia', '"Times New Roman"', 'serif'],
-        sans: ['ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        serif: ['Fraunces', 'Georgia', '"Times New Roman"', 'serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -74,8 +73,8 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
       },
       backgroundImage: {
         'gradient-saffron': 'var(--gradient-saffron)',
@@ -87,6 +86,7 @@ export default {
         'soft': 'var(--shadow-soft)',
         'elegant': 'var(--shadow-elegant)',
         'lift': 'var(--shadow-lift)',
+        'glow': 'var(--shadow-glow)',
       },
       keyframes: {
         "accordion-down": {
@@ -101,11 +101,21 @@ export default {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
+        "fade-in-up": "fade-in-up 0.6s ease-out both",
+        "scale-in": "scale-in 0.3s ease-out both",
       },
     },
   },

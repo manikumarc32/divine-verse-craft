@@ -45,6 +45,7 @@ export function Footer() {
             <h4 className="font-serif text-accent mb-3">Shop</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/shop" className="hover:text-accent">All Wall Art</Link></li>
+              <li><Link to="/bundles" className="hover:text-accent">Bundle Deals</Link></li>
               <li><Link to="/shop?category=gita_quote" className="hover:text-accent">Gita Quotes</Link></li>
               <li><Link to="/shop?category=god_portrait" className="hover:text-accent">God Portraits</Link></li>
               <li><Link to="/shop?category=hand_written" className="hover:text-accent">Hand-Written</Link></li>
@@ -56,18 +57,20 @@ export function Footer() {
             <h4 className="font-serif text-accent mb-3">Info</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to="/about-gita" className="hover:text-accent">About the Gita</Link></li>
+              <li><Link to="/size-guide" className="hover:text-accent">Size Guide</Link></li>
               <li><Link to="/blog" className="hover:text-accent">Blog</Link></li>
-              <li><a href="#" className="hover:text-accent">Contact</a></li>
-              <li><a href="#" className="hover:text-accent">FAQ</a></li>
+              <li><Link to="/india" className="hover:text-accent">🇮🇳 India Soon</Link></li>
+              <li><Link to="/contact" className="hover:text-accent">Contact</Link></li>
+              <li><Link to="/faq" className="hover:text-accent">FAQ</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-serif text-accent mb-3">Legal & Shipping</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-accent">Privacy</a></li>
-              <li><a href="#" className="hover:text-accent">Terms</a></li>
-              <li><a href="#" className="hover:text-accent">30-Day Returns</a></li>
+              <li><Link to="/privacy" className="hover:text-accent">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-accent">Terms & Conditions</Link></li>
+              <li><Link to="/refunds" className="hover:text-accent">Refunds & Returns</Link></li>
             </ul>
             <h4 className="font-serif text-accent mt-5 mb-3">We ship to</h4>
             <ul className="space-y-1 text-sm">
