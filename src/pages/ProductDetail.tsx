@@ -16,6 +16,7 @@ interface FullProduct extends ProductSummary {
   telugu_meaning: string | null;
   description: string | null;
   stock_limit: number | null;
+  review_count?: number | null;
 }
 
 const LANGS = [
