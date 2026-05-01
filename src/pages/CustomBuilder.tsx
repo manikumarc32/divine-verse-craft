@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { calculatePrice, formatGBP, SIZE_MODIFIERS, FRAME_MODIFIERS } from "@/lib/pricing";
 import { useCart } from "@/lib/cart";
 import { ImageUploader } from "@/components/custom/ImageUploader";
+import { ReferenceBackgroundPicker } from "@/components/custom/ReferenceBackgroundPicker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
@@ -192,9 +194,18 @@ export default function CustomBuilder() {
                 </div>
                 <div>
                   <Label>Background image (optional)</Label>
-                  <div className="mt-2">
-                    <ImageUploader value={bgImageUrl} onChange={setBgImageUrl} />
-                  </div>
+                  <Tabs defaultValue="reference" className="mt-2">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="reference">Choose from library</TabsTrigger>
+                      <TabsTrigger value="upload">Upload your own</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="reference" className="mt-3">
+                      <ReferenceBackgroundPicker value={bgImageUrl} onChange={setBgImageUrl} />
+                    </TabsContent>
+                    <TabsContent value="upload" className="mt-3">
+                      <ImageUploader value={bgImageUrl} onChange={setBgImageUrl} />
+                    </TabsContent>
+                  </Tabs>
                 </div>
                 {bgImageUrl && (
                   <div>
