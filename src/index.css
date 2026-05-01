@@ -233,3 +233,19 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Print styles for Chalisa / scripture pages */
+@media print {
+  body * { visibility: hidden; }
+  .chalisa-print, .chalisa-print * { visibility: visible; }
+  .chalisa-print {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 1cm;
+    background: white !important;
+    color: #111 !important;
+    font-size: 12pt;
+  }
+  .print\:hidden { display: none !important; }
+}
