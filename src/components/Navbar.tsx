@@ -28,9 +28,12 @@ export function Navbar() {
 
   const links = [
     { to: "/shop", label: "Shop" },
+    { to: "/shop?epic=gita", label: "Gita" },
+    { to: "/shop?epic=ramayana", label: "Ramayana" },
     { to: "/bundles", label: "Bundles" },
     { to: "/custom-builder", label: "Custom" },
     { to: "/about-gita", label: "About Gita" },
+    { to: "/ramayana", label: "About Ramayana" },
     { to: "/blog", label: "Blog" },
   ];
 
@@ -60,7 +63,7 @@ export function Navbar() {
                 key={l.to}
                 to={l.to}
                 className={cn(
-                  "relative text-sm transition-colors py-2",
+                  "relative text-sm transition-colors py-2 whitespace-nowrap",
                   active ? "text-primary" : "text-brand-mid hover:text-primary",
                 )}
               >
