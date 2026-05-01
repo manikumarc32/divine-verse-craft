@@ -621,6 +621,9 @@ export type Database = {
         | "god_portrait"
         | "symbol"
         | "hand_written"
+        | "ramayana_quote"
+        | "ramayana_scene"
+        | "hanuman_chalisa"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -764,6 +767,9 @@ export const Constants = {
         "god_portrait",
         "symbol",
         "hand_written",
+        "ramayana_quote",
+        "ramayana_scene",
+        "hanuman_chalisa",
       ],
     },
   },
