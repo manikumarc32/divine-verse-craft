@@ -30,6 +30,9 @@ export function ReferenceBackgroundPicker({ value, onChange }: Props) {
 
   return (
     <div className="space-y-4">
+      <p className="text-xs text-brand-mid italic">
+        For deity imagery (Hanuman, Krishna, Shiva, etc.) please upload an authentic photograph or traditional artwork using the "Upload your own" option — we don't auto-generate sacred figures.
+      </p>
       {groups.map((g) => (
         <div key={g}>
           <p className="text-[11px] uppercase tracking-widest text-brand-mid mb-2">{g}</p>
