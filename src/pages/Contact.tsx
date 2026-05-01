@@ -27,7 +27,12 @@ export default function Contact() {
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     setSubmitting(true);
-    const { error } = await supabase.from("contact_messages").insert(parsed.data);
+    const { error } = await supabase.from("contact_messages").insert({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      subject: parsed.data.subject,
+      message: parsed.data.message,
+    });
     setSubmitting(false);
     if (error) return toast.error(error.message);
     toast.success("Message sent! We usually reply within 24 hours.");
