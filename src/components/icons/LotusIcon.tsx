@@ -14,8 +14,6 @@ export function LotusIcon({ className = "h-6 w-6", ...props }: SVGProps<SVGSVGEl
   );
 }
 
-export function OmIcon({ className = "h-6 w-6", ...props }: SVGProps<SVGSVGElement>) {
-  return (
-    <span className={className} {...(props as never)} aria-label="Om">ॐ</span>
-  );
+export function OmIcon({ className = "h-6 w-6" }: { className?: string }) {
+  return <span className={className} aria-label="Om">ॐ</span>;
 }
