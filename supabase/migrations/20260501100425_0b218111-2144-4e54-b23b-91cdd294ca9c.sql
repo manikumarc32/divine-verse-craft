@@ -1,0 +1,1 @@
+UPDATE public.products SET hero_image_url = NULL WHERE slug = 'hanuman-chalisa-complete';
