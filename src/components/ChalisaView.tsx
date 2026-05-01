@@ -17,7 +17,7 @@ const HEADINGS = new Set([
   "Doha", "Dhyanam", "Chaupai",
 ]);
 
-const MEANING_PREFIX = /^(అర్థం|అర్ధం|Meaning|अर्थ)\s*[:：]\s*/;
+const MEANING_PREFIX = /^(అర్థం|అర్ధం|Meaning|अर्थ)\s*(?:\([^)]*\))?\s*[:：]\s*/;
 
 interface Block {
   kind: "heading" | "verse" | "meaning";
