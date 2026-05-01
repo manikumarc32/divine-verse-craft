@@ -44,7 +44,7 @@ function parse(text: string): Block[] {
     // Detect verse number on any line e.g. "॥ 1 ॥", "॥1॥", or Telugu digits "౧"
     let number: string | undefined;
     for (const ln of lines) {
-      const m = ln.match(/॥\s*([\d౦-౯०-९]+)\s*॥/);
+      const m = ln.match(/(?:॥|\|\|)\s*([\d౦-౯०-९]+)\s*(?:॥|\|\|)/);
       if (m) { number = m[1]; break; }
     }
     blocks.push({ kind: "verse", lines, number });
