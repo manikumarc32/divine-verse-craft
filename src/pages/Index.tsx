@@ -1,43 +1,40 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { PageLayout } from "@/components/PageLayout";
 import { ProductCard, ProductSummary } from "@/components/ProductCard";
 import { LotusIcon } from "@/components/icons/LotusIcon";
 import { MotionSection } from "@/components/MotionSection";
 import { IndiaBanner } from "@/components/IndiaBanner";
+import { TwinHero } from "@/components/TwinHero";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Star, Truck, Award, ShieldCheck, Undo2, Leaf } from "lucide-react";
 
-const ROTATING = [
-  { sans: "योगः कर्मसु कौशलम्", ref: "Bhagavad Gita 2.50" },
-  { sans: "वासुदेवः सर्वम् इति", ref: "Bhagavad Gita 7.19" },
-  { sans: "सर्वधर्मान् परित्यज्य", ref: "Bhagavad Gita 18.66" },
-];
-
 export default function Home() {
   const { t } = useLanguage();
   const [gita, setGita] = useState<ProductSummary[]>([]);
+  const [ramayana, setRamayana] = useState<ProductSummary[]>([]);
   const [portraits, setPortraits] = useState<ProductSummary[]>([]);
-  const [verseIdx, setVerseIdx] = useState(0);
 
   useEffect(() => {
-    document.title = "DivineVerse Art — Sacred Wall Art From the Bhagavad Gita";
+    document.title = "DivineVerse Art — Bhagavad Gita & Ramayana Wall Art";
     (async () => {
       const { data: g } = await supabase
         .from("products").select("*").eq("category", "gita_quote")
         .order("sort_order").limit(3);
       setGita((g ?? []) as unknown as ProductSummary[]);
+      const { data: r } = await supabase
+        .from("products").select("*")
+        .in("category", ["ramayana_quote", "ramayana_scene", "hanuman_chalisa"])
+        .order("sort_order").limit(3);
+      setRamayana((r ?? []) as unknown as ProductSummary[]);
       const { data: p } = await supabase
         .from("products").select("*").eq("category", "god_portrait")
         .order("sort_order").limit(3);
       setPortraits((p ?? []) as unknown as ProductSummary[]);
     })();
-
-    const interval = setInterval(() => setVerseIdx((i) => (i + 1) % ROTATING.length), 5000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
