@@ -346,6 +346,9 @@ export default function CustomBuilder() {
                 meaning={scriptureMeaning}
                 font={font}
                 bgColor={bg}
+                bgImageUrl={bgImageUrl}
+                textColor={textColor}
+                overlay={overlay}
                 size="lg"
                 frame={frame}
               />
