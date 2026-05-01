@@ -96,6 +96,28 @@ export default function Checkout() {
       const { error: itErr } = await supabase.from("order_items").insert(items);
       if (itErr) throw itErr;
 
+      // Decrement stock for items linked to a product (mock checkout — real Stripe webhook would do this)
+      const productItems = cart.items.filter((i) => !!i.productId);
+      if (productItems.length > 0) {
+        const ids = Array.from(new Set(productItems.map((i) => i.productId!)));
+        const { data: stocked } = await supabase
+          .from("products")
+          .select("id, stock_limit, sold_count")
+          .in("id", ids);
+        for (const item of productItems) {
+          const p = stocked?.find((x: any) => x.id === item.productId);
+          if (!p || p.stock_limit == null) continue;
+          const newSold = (p.sold_count ?? 0) + item.quantity;
+          await supabase
+            .from("products")
+            .update({
+              sold_count: newSold,
+              is_active: newSold < p.stock_limit,
+            })
+            .eq("id", item.productId);
+        }
+      }
+
       cart.clear();
       navigate(`/checkout/success?order=${order.id}`);
     } catch (err: any) {

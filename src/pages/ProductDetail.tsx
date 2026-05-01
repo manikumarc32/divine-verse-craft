@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { calculatePrice, formatGBP, SIZE_MODIFIERS, MATERIAL_MODIFIERS, FRAME_MODIFIERS } from "@/lib/pricing";
 import { useCart } from "@/lib/cart";
+import { StockBar, isSoldOut } from "@/components/StockBar";
 import { toast } from "sonner";
 import { Heart, Star, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ interface FullProduct extends ProductSummary {
   telugu_meaning: string | null;
   description: string | null;
   stock_limit: number | null;
+  sold_count: number | null;
   review_count?: number | null;
 }
 
@@ -95,7 +97,14 @@ export default function ProductDetail() {
               {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-accent text-accent" />)}
               <span className="text-sm text-brand-mid ml-1">{Number(product.rating).toFixed(1)} ({product.review_count ?? 0} reviews)</span>
             </div>
-            <p className="font-serif text-3xl text-primary mb-6">{formatGBP(price)}</p>
+            <p className="font-serif text-3xl text-primary mb-4">{formatGBP(price)}</p>
+
+            {product.stock_limit != null && (
+              <div className="mb-6 max-w-xs">
+                <StockBar stockLimit={product.stock_limit} soldCount={product.sold_count ?? 0} />
+              </div>
+            )}
+
             <p className="text-brand-mid mb-8">{product.description}</p>
 
             {(product.sanskrit || product.telugu_meaning) && (
@@ -139,8 +148,13 @@ export default function ProductDetail() {
             </OptionGroup>
 
             <div className="flex gap-3 mt-8">
-              <Button onClick={addToCart} size="lg" className="flex-1 bg-gradient-saffron text-primary-foreground border-0 h-12">
-                Add to Cart · {formatGBP(price)}
+              <Button
+                onClick={addToCart}
+                size="lg"
+                disabled={isSoldOut(product.stock_limit, product.sold_count)}
+                className="flex-1 bg-gradient-saffron text-primary-foreground border-0 h-12"
+              >
+                {isSoldOut(product.stock_limit, product.sold_count) ? "Sold Out" : `Add to Cart · ${formatGBP(price)}`}
               </Button>
               <Button variant="outline" size="lg" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground h-12 min-w-[44px]">
                 <Heart className="h-5 w-5" />
