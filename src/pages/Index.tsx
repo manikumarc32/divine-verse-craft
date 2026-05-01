@@ -10,7 +10,57 @@ import { TwinHero } from "@/components/TwinHero";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Star, Truck, Award, ShieldCheck, Undo2, Leaf } from "lucide-react";
+import {
+  Star,
+  Truck,
+  Award,
+  ShieldCheck,
+  Undo2,
+  Leaf,
+  MapPin,
+  BookOpenCheck,
+  Sparkles,
+  Search,
+  Palette,
+  Languages as LangIcon,
+  PackageCheck,
+} from "lucide-react";
+
+const WHY = [
+  {
+    icon: MapPin,
+    title: "Crafted in the UK",
+    body: "Printed and packed by hand in Surrey on archival giclée paper or pure cotton canvas.",
+  },
+  {
+    icon: BookOpenCheck,
+    title: "Authentic verses",
+    body: "Every Sanskrit shloka is sourced from verified Vedic editions, with chapter & verse referenced on the back.",
+  },
+  {
+    icon: Sparkles,
+    title: "Made to last 100 years",
+    body: "Pigment inks rated for a century of fade-resistance, signed and numbered editions.",
+  },
+];
+
+const STEPS = [
+  { icon: Search, title: "Choose a verse or scene", body: "Browse 150+ designs or build your own from any shloka." },
+  { icon: Palette, title: "Pick size, material & frame", body: "From A4 prints to museum-grade A2 canvas in oak or black." },
+  { icon: LangIcon, title: "Add your language", body: "Sanskrit original with Telugu, Hindi, Tamil or English meaning." },
+  { icon: PackageCheck, title: "Printed in 2–3 days", body: "Tracked UK delivery in 3–5 days, worldwide shipping available." },
+];
+
+const PRESS = ["Hindustan Times", "Eastern Eye", "Asian Voice", "The Spiritual Times", "Yoga Magazine UK"];
+
+const TESTIMONIALS = [
+  { name: "Priya S.", city: "London, UK", text: "The Karma Yoga print transformed my meditation corner. The Sanskrit calligraphy is stunning." },
+  { name: "Arjun M.", city: "Manchester, UK", text: "Ordered the hand-written Gayatri Mantra — heirloom quality, my parents were moved to tears." },
+  { name: "Lakshmi R.", city: "Edinburgh, UK", text: "Custom quote builder let me print my late grandmother's favourite shloka. Beyond grateful." },
+  { name: "Rohan K.", city: "New Jersey, USA", text: "Ram Darbar canvas is the centrepiece of our pooja room. Colours are deep, paper feels like silk." },
+  { name: "Anjali V.", city: "Toronto, CA", text: "I gifted the Hanuman Chalisa scroll to my dad on his 70th — he framed it the same evening." },
+  { name: "Meera T.", city: "Birmingham, UK", text: "Telugu meaning printed beside the Sanskrit was perfect for my mum. Already ordered three more." },
+];
 
 export default function Home() {
   const { t } = useLanguage();
@@ -50,8 +100,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why DivineVerse — three pillars */}
+      <MotionSection className="container py-16">
+        <div className="text-center mb-10">
+          <h2 className="font-serif text-3xl md:text-4xl mb-2">{t("section.why")}</h2>
+          <div className="gold-divider-sm mx-auto" />
+          <p className="text-brand-mid mt-3">{t("section.why.sub")}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {WHY.map((w, i) => (
+            <motion.div
+              key={w.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="card-spiritual p-6 text-center"
+            >
+              <w.icon className="h-9 w-9 text-primary mx-auto mb-4" />
+              <h3 className="font-serif text-xl mb-2">{w.title}</h3>
+              <p className="text-sm text-brand-mid leading-relaxed">{w.body}</p>
+            </motion.div>
+          ))}
+        </div>
+      </MotionSection>
+
       {/* Featured Gita Quotes */}
-      <MotionSection className="container py-20">
+      <MotionSection className="container pb-20">
         <div className="text-center mb-12">
           <LotusIcon className="h-10 w-10 text-primary mx-auto mb-4" />
           <h2 className="font-serif text-3xl md:text-5xl mb-2">{t("section.featured")}</h2>
@@ -133,8 +208,36 @@ export default function Home() {
         </div>
       </MotionSection>
 
-      {/* God Portraits */}
+      {/* How it works */}
       <MotionSection className="container py-20">
+        <div className="text-center mb-12">
+          <h2 className="font-serif text-3xl md:text-4xl mb-2">{t("section.how")}</h2>
+          <div className="gold-divider-sm mx-auto" />
+          <p className="text-brand-mid mt-3">{t("section.how.sub")}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {STEPS.map((s, i) => (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="relative card-spiritual p-6"
+            >
+              <span className="absolute -top-3 -left-3 h-9 w-9 rounded-full bg-gradient-saffron text-primary-foreground font-serif font-semibold flex items-center justify-center shadow-lift">
+                {i + 1}
+              </span>
+              <s.icon className="h-7 w-7 text-primary mb-3" />
+              <h3 className="font-serif text-lg mb-1">{s.title}</h3>
+              <p className="text-sm text-brand-mid leading-relaxed">{s.body}</p>
+            </motion.div>
+          ))}
+        </div>
+      </MotionSection>
+
+      {/* God Portraits */}
+      <MotionSection className="container pb-20">
         <div className="text-center mb-12">
           <LotusIcon className="h-10 w-10 text-primary mx-auto mb-4" />
           <h2 className="font-serif text-3xl md:text-5xl mb-2">{t("section.portraits")}</h2>
@@ -159,26 +262,29 @@ export default function Home() {
       {/* Testimonials */}
       <MotionSection className="bg-brand-dark text-brand-cream py-20">
         <div className="container">
-          <h2 className="font-serif text-3xl md:text-5xl text-center mb-12">{t("section.testimonials")}</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "Priya S.", text: "The Karma Yoga print transformed my meditation corner. The Sanskrit calligraphy is stunning." },
-              { name: "Arjun M.", text: "Ordered the hand-written Gayatri Mantra — heirloom quality, my parents were moved to tears." },
-              { name: "Lakshmi R.", text: "Custom quote builder let me print my late grandmother's favourite shloka. Beyond grateful." },
-            ].map((t, i) => (
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-3xl md:text-5xl mb-3">{t("section.testimonials")}</h2>
+            <div className="flex items-center justify-center gap-1 text-accent mb-2">
+              {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-accent" />)}
+            </div>
+            <p className="text-brand-cream/70 text-sm">{t("section.testimonials.sub")}</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((tst, i) => (
               <motion.div
-                key={t.name}
+                key={tst.name}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+                transition={{ duration: 0.5, delay: (i % 3) * 0.1 }}
                 className="bg-brand-dark/60 border border-brand-cream/10 p-6 rounded-2xl"
               >
                 <div className="flex gap-0.5 text-accent mb-3">
                   {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-accent" />)}
                 </div>
-                <p className="text-brand-cream/80 italic mb-4">"{t.text}"</p>
-                <p className="text-accent font-serif">— {t.name}</p>
+                <p className="text-brand-cream/80 italic mb-4">"{tst.text}"</p>
+                <p className="text-accent font-serif">— {tst.name}</p>
+                <p className="text-xs text-brand-cream/50 mt-1">{tst.city} · verified buyer</p>
               </motion.div>
             ))}
           </div>
@@ -202,6 +308,40 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* As featured in */}
+      <section className="border-t border-border bg-muted/30 py-8">
+        <div className="container text-center">
+          <p className="text-xs uppercase tracking-widest text-brand-mid mb-4">
+            {t("section.featured_in")}
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 text-brand-mid/80 font-serif italic">
+            {PRESS.map((p, i) => (
+              <span key={p} className="flex items-center gap-8">
+                {p}
+                {i < PRESS.length - 1 && <span className="text-accent/40 hidden md:inline">✦</span>}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <MotionSection className="bg-gradient-saffron text-primary-foreground py-16">
+        <div className="container text-center max-w-2xl">
+          <LotusIcon className="h-10 w-10 mx-auto mb-4 opacity-90" />
+          <h2 className="font-serif text-3xl md:text-5xl mb-3">{t("section.cta.title")}</h2>
+          <p className="text-primary-foreground/90 mb-8">{t("section.cta.sub")}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild size="lg" className="bg-brand-dark text-brand-cream hover:bg-brand-dark/90 border-0 h-12 px-8">
+              <Link to="/shop">Shop the Gita</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary h-12 px-8">
+              <Link to="/custom-builder">Build your own</Link>
+            </Button>
+          </div>
+        </div>
+      </MotionSection>
 
       <IndiaBanner />
     </PageLayout>
