@@ -18,14 +18,14 @@ export function Footer() {
   return (
     <footer className="bg-brand-dark text-brand-cream/90 mt-16">
       <div className="container py-16">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-10">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <LotusIcon className="h-7 w-7 text-accent" />
               <span className="font-serif text-xl text-brand-cream">DivineVerse Art</span>
             </div>
             <p className="text-sm text-brand-cream/70 leading-relaxed mb-6 max-w-sm">
-              Sacred wall art crafted in the UK — Bhagavad Gita verses, Hindu deity portraits, and hand-written Sanskrit calligraphy for modern, mindful homes.
+              Two epics. One eternal dharma. Sacred wall art crafted in the UK — Bhagavad Gita verses, Ramayana scenes, Hindu deity portraits, and hand-written Sanskrit calligraphy for modern, mindful homes.
             </p>
             <form onSubmit={subscribe} className="flex gap-2">
               <Input
@@ -42,21 +42,30 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-serif text-accent mb-3">Shop</h4>
+            <h4 className="font-serif text-accent mb-3">Bhagavad Gita</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/shop" className="hover:text-accent">All Wall Art</Link></li>
-              <li><Link to="/bundles" className="hover:text-accent">Bundle Deals</Link></li>
+              <li><Link to="/shop?epic=gita" className="hover:text-accent">Gita Wall Art</Link></li>
               <li><Link to="/shop?category=gita_quote" className="hover:text-accent">Gita Quotes</Link></li>
-              <li><Link to="/shop?category=god_portrait" className="hover:text-accent">God Portraits</Link></li>
-              <li><Link to="/shop?category=hand_written" className="hover:text-accent">Hand-Written</Link></li>
-              <li><Link to="/custom-builder" className="hover:text-accent">Custom Quote</Link></li>
+              <li><Link to="/about-gita" className="hover:text-accent">About the Gita</Link></li>
+              <li><Link to="/custom-builder" className="hover:text-accent">Custom Verse</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-serif text-accent mb-3">Ramayana</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/shop?epic=ramayana" className="hover:text-accent">Ramayana Art</Link></li>
+              <li><Link to="/shop?category=ramayana_scene" className="hover:text-accent">Ram Darbar & Scenes</Link></li>
+              <li><Link to="/shop?category=hanuman_chalisa" className="hover:text-accent">Hanuman Chalisa</Link></li>
+              <li><Link to="/ramayana" className="hover:text-accent">About the Ramayana</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-serif text-accent mb-3">Info</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/about-gita" className="hover:text-accent">About the Gita</Link></li>
+              <li><Link to="/shop" className="hover:text-accent">All Wall Art</Link></li>
+              <li><Link to="/bundles" className="hover:text-accent">Bundle Deals</Link></li>
               <li><Link to="/size-guide" className="hover:text-accent">Size Guide</Link></li>
               <li><Link to="/blog" className="hover:text-accent">Blog</Link></li>
               <li><Link to="/india" className="hover:text-accent">🇮🇳 India Soon</Link></li>

@@ -11,10 +11,23 @@ import { Search } from "lucide-react";
 const CATEGORIES = [
   { code: "all", label: "All" },
   { code: "gita_quote", label: "Gita Quotes" },
+  { code: "ramayana_quote", label: "Ramayana Verses" },
+  { code: "ramayana_scene", label: "Ramayana Scenes" },
+  { code: "hanuman_chalisa", label: "Hanuman Chalisa", purple: true },
   { code: "god_portrait", label: "God Portraits" },
   { code: "symbol", label: "Symbols" },
   { code: "hand_written", label: "Hand-Written", purple: true },
 ];
+
+const EPIC_FILTER: Record<string, string[]> = {
+  gita: ["gita_quote"],
+  ramayana: ["ramayana_quote", "ramayana_scene", "hanuman_chalisa"],
+};
+
+const EPIC_META: Record<string, { title: string; sub: string }> = {
+  gita: { title: "Bhagavad Gita Wall Art", sub: "Verses from the Song of God — Sanskrit, Telugu, English" },
+  ramayana: { title: "Ramayana Wall Art", sub: "Shlokas, Ram Darbar scenes, and Hanuman Chalisa calligraphy" },
+};
 
 export default function Shop() {
   const [params, setParams] = useSearchParams();
@@ -34,8 +47,13 @@ export default function Shop() {
     setParams(params);
   }
 
+  const epic = params.get("epic");
+
   const filtered = useMemo(() => {
     let f = products;
+    if (epic && EPIC_FILTER[epic]) {
+      f = f.filter((p) => EPIC_FILTER[epic].includes(p.category));
+    }
     if (category !== "all") f = f.filter((p) => p.category === category);
     if (search) {
       const q = search.toLowerCase();
@@ -45,15 +63,25 @@ export default function Shop() {
     if (sort === "price-desc") f = [...f].sort((a, b) => Number(b.base_price) - Number(a.base_price));
     if (sort === "rating") f = [...f].sort((a, b) => Number(b.rating) - Number(a.rating));
     return f;
-  }, [products, category, search, sort]);
+  }, [products, category, search, sort, epic]);
+
+  const meta = epic ? EPIC_META[epic] : null;
 
   return (
     <PageLayout>
       <div className="container py-12">
         <div className="text-center mb-10">
-          <h1 className="font-serif text-4xl md:text-5xl mb-2">Sacred Wall Art</h1>
+          <h1 className="font-serif text-4xl md:text-5xl mb-2">{meta?.title ?? "Sacred Wall Art"}</h1>
           <div className="gold-divider-sm mx-auto" />
-          <p className="text-brand-mid mt-3">Verses, portraits, and calligraphy — all printed in the UK</p>
+          <p className="text-brand-mid mt-3">{meta?.sub ?? "Verses, portraits, and calligraphy — all printed in the UK"}</p>
+          {epic && (
+            <button
+              onClick={() => { params.delete("epic"); setParams(params); }}
+              className="mt-3 text-xs text-accent hover:underline"
+            >
+              ← View all epics
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">

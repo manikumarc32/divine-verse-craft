@@ -1,115 +1,52 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { PageLayout } from "@/components/PageLayout";
 import { ProductCard, ProductSummary } from "@/components/ProductCard";
 import { LotusIcon } from "@/components/icons/LotusIcon";
 import { MotionSection } from "@/components/MotionSection";
 import { IndiaBanner } from "@/components/IndiaBanner";
+import { TwinHero } from "@/components/TwinHero";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Star, Truck, Award, ShieldCheck, Undo2, Leaf } from "lucide-react";
 
-const ROTATING = [
-  { sans: "योगः कर्मसु कौशलम्", ref: "Bhagavad Gita 2.50" },
-  { sans: "वासुदेवः सर्वम् इति", ref: "Bhagavad Gita 7.19" },
-  { sans: "सर्वधर्मान् परित्यज्य", ref: "Bhagavad Gita 18.66" },
-];
-
 export default function Home() {
   const { t } = useLanguage();
   const [gita, setGita] = useState<ProductSummary[]>([]);
+  const [ramayana, setRamayana] = useState<ProductSummary[]>([]);
   const [portraits, setPortraits] = useState<ProductSummary[]>([]);
-  const [verseIdx, setVerseIdx] = useState(0);
 
   useEffect(() => {
-    document.title = "DivineVerse Art — Sacred Wall Art From the Bhagavad Gita";
+    document.title = "DivineVerse Art — Bhagavad Gita & Ramayana Wall Art";
     (async () => {
       const { data: g } = await supabase
         .from("products").select("*").eq("category", "gita_quote")
         .order("sort_order").limit(3);
       setGita((g ?? []) as unknown as ProductSummary[]);
+      const { data: r } = await supabase
+        .from("products").select("*")
+        .in("category", ["ramayana_quote", "ramayana_scene", "hanuman_chalisa"])
+        .order("sort_order").limit(3);
+      setRamayana((r ?? []) as unknown as ProductSummary[]);
       const { data: p } = await supabase
         .from("products").select("*").eq("category", "god_portrait")
         .order("sort_order").limit(3);
       setPortraits((p ?? []) as unknown as ProductSummary[]);
     })();
-
-    const interval = setInterval(() => setVerseIdx((i) => (i + 1) % ROTATING.length), 5000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
     <PageLayout>
-      {/* Hero */}
-      <section className="bg-gradient-hero text-brand-cream relative overflow-hidden grain">
-        {/* Floating Om accents */}
-        <span className="absolute top-16 left-8 text-accent/20 text-7xl float-gentle pointer-events-none select-none hidden md:block">ॐ</span>
-        <span className="absolute bottom-20 right-12 text-accent/15 text-9xl spin-slow pointer-events-none select-none hidden md:block">ॐ</span>
+      <TwinHero />
 
-        <div className="container py-24 md:py-32 text-center relative z-10">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-accent text-xs md:text-sm tracking-[0.4em] mb-5"
-          >
-            {t("hero.eyebrow")}
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="font-serif text-5xl md:text-7xl leading-[1.05] mb-4 text-shadow-soft"
-          >
-            {t("hero.title.a")}<br />
-            <span className="text-accent italic">{t("hero.title.b")}</span>
-          </motion.h1>
-
-          <div className="h-14 mt-8 mb-6 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={verseIdx}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.6 }}
-                className="text-center"
-              >
-                <p className="sanskrit text-xl md:text-2xl text-brand-cream/85">{ROTATING[verseIdx].sans}</p>
-                <p className="text-[11px] tracking-widest uppercase text-accent/80 mt-1">{ROTATING[verseIdx].ref}</p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-brand-cream/70 max-w-xl mx-auto mb-10 text-base md:text-lg"
-          >
-            {t("hero.tagline")}
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Button asChild size="lg" className="bg-gradient-saffron text-primary-foreground border-0 h-12 px-8 shadow-elegant">
-              <Link to="/shop">{t("hero.cta.shop")}</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground h-12 px-8">
-              <Link to="/custom-builder">{t("hero.cta.custom")}</Link>
-            </Button>
-          </motion.div>
-
-          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-16">
-            <Stat n="150+" l={t("stat.designs")} />
-            <Stat n="4.8 ★" l={t("stat.rating")} />
-            <Stat n="🇬🇧" l={t("stat.uk")} />
-          </div>
+      {/* Stats strip */}
+      <section className="bg-brand-dark text-brand-cream border-b border-brand-cream/10">
+        <div className="container py-8 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <Stat n="150+" l={t("stat.designs")} />
+          <Stat n="4.8 ★" l={t("stat.rating")} />
+          <Stat n="🇬🇧" l={t("stat.uk")} />
         </div>
       </section>
 
@@ -136,7 +73,36 @@ export default function Home() {
         </div>
       </MotionSection>
 
-      {/* Multilingual banner */}
+      {/* Featured Ramayana Art */}
+      <MotionSection className="bg-brand-cream/60 py-20 border-y border-accent/20">
+        <div className="container">
+          <div className="text-center mb-12">
+            <span className="sanskrit text-3xl text-accent">श्रीराम</span>
+            <h2 className="font-serif text-3xl md:text-5xl mt-2 mb-2">{t("section.ramayana")}</h2>
+            <div className="gold-divider-sm mx-auto" />
+            <p className="text-brand-mid mt-3">{t("section.ramayana.sub")}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {ramayana.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+              >
+                <ProductCard product={p} />
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              <Link to="/shop?epic=ramayana">View all Ramayana art →</Link>
+            </Button>
+          </div>
+        </div>
+      </MotionSection>
+
       <MotionSection className="bg-accent/15 py-16 border-y border-accent/30">
         <div className="container grid md:grid-cols-2 gap-10 items-center">
           <div>

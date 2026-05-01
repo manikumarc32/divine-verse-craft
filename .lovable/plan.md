@@ -1,153 +1,107 @@
 
-# Phase 2 — DivineVerse Art
+# Add Ramayana alongside Bhagavad Gita
 
-Builds on Phase 1. Adds 7 new pages, stock + bundle systems, Telugu language toggle, FAQ chatbot, and a site-wide modernisation pass (fonts, scroll animations, micro-interactions).
-
----
-
-## 1. Visual modernisation pass (applied first, site-wide)
-
-**Why first:** every new page inherits the upgraded look, so we don't restyle twice.
-
-- **Fonts:** Add Fraunces (display, for h1/h2) + Inter (body) via Google Fonts. Keep Sanskrit font stack. Update `index.css` font tokens.
-- **Framer Motion** (`framer-motion`) for scroll-reveal, page transitions, stagger.
-- **Navbar:** glass blur + shrink-on-scroll (height 64→56px), subtle border glow on scroll.
-- **Hero:** larger editorial type, animated gradient background, gentle floating Om/lotus accents, Sanskrit verse fades through 3 rotating quotes.
-- **Product cards:** image-zoom on hover, frame glow, lift shadow, animated price reveal.
-- **Section reveals:** fade-up + stagger on scroll using `whileInView`.
-- **Animated gold divider:** shimmer animation on the existing `.gold-divider`.
-- **Page transitions:** 200ms fade between routes via `AnimatePresence` in `App.tsx`.
-- **Buttons:** existing `btn-saffron` gets a subtle shine sweep on hover.
-
-No layout breaking changes — purely additive polish.
+Right now DivineVerse Art is 90% Gita-focused. We'll re-position the brand as honouring **two great epics** equally: the **Bhagavad Gita** (wisdom of Krishna) and the **Ramayana** (story of Rama). This gives you a much wider audience — Ram bhakts, Hanuman devotees, Sita-Ram families, and the huge Ayodhya / post-Ram-Mandir market.
 
 ---
 
-## 2. Bundles (new `/bundles` route)
+## 1. New Product Categories (database)
 
-**DB (migration):**
+Add Ramayana-themed categories to the `product_category` enum:
+- `ramayana_quote` — verses/shlokas from Valmiki Ramayana & Ramcharitmanas
+- `ramayana_scene` — Ram-Sita-Lakshman, Ram Darbar, Hanuman lifting mountain, Ram returning to Ayodhya, Ram-Ravan yuddh
+- `hanuman_chalisa` — verse art from the 40 chaupais
+
+(Existing `god_portrait` already covers single Ram/Sita/Hanuman portraits.)
+
+Seed ~8–10 starter Ramayana products with sample shlokas (Sanskrit + Telugu + English meaning) using the same product schema you already have.
+
+## 2. Twin-Epic Homepage Hero
+
+Replace the current single-verse hero with a **split / rotating dual hero**:
+
+```text
++-----------------------------------------------+
+|   THE WISDOM       ||      THE STORY          |
+|   Bhagavad Gita    ||      Ramayana           |
+|   "Karmanyeva..."  ||   "Raghukul reet..."    |
+|   [Shop Gita Art]  ||   [Shop Ramayana Art]   |
++-----------------------------------------------+
 ```
-bundles(id, slug, title, description, bundle_price, badge, sort_order, is_active)
-bundle_items(id, bundle_id, product_id, quantity)
+
+Each side rotates through 3 verses with Framer Motion fade. Mobile stacks vertically.
+
+## 3. New Dedicated Pages
+
+- **`/ramayana`** — mirror of the existing `/about-gita` page. Tells the story of Rama, the 7 Kandas (Bala, Ayodhya, Aranya, Kishkindha, Sundara, Yuddha, Uttara), key characters, and why each scene matters spiritually. Beautiful long-form editorial with gold dividers.
+- **Rename `/about-gita` → `/about`** with two tabs: *Bhagavad Gita* | *Ramayana*. (Old URL redirects so nothing breaks.)
+- **`/shop?epic=ramayana`** and **`/shop?epic=gita`** — Shop page filter chips at top: *All · Gita · Ramayana · Portraits · Calligraphy*.
+
+## 4. New Themed Bundles
+
+Add to the bundles table:
+- **Ram Darbar Trio** — Ram + Sita + Hanuman portraits
+- **Sundara Kanda Set** — 3 Hanuman Chalisa calligraphy prints
+- **Twin Wisdom Bundle** — 1 Gita verse + 1 Ramayana verse (cross-sell hero)
+- **Ayodhya Collection** — 4 scenes: Ram's birth, Vanvas, Ram-Ravan yuddh, Ram returning home
+
+## 5. Navigation & Footer
+
+Navbar dropdown becomes:
+
+```text
+Shop ▾
+  ├─ Bhagavad Gita Art
+  ├─ Ramayana Art
+  ├─ God Portraits
+  ├─ Hand-written Calligraphy
+  └─ Bundles
+
+Learn ▾
+  ├─ About the Gita
+  └─ About the Ramayana
 ```
-Public read RLS; admin manage via `is_admin()`.
 
-Seed 4 bundles referencing existing product slugs:
-- Karma Collection (3 Gita posters)
-- Divine Trinity (Krishna + Shiva + Ganesh)
-- Meditation Set (Om + Lotus + Mandala)
-- Complete Gita (all 7 Gita posters)
+Footer gets matching "Explore the Gita" and "Explore the Ramayana" columns.
 
-**Pricing:** `original_price` is computed at render time as `sum(bundle_items.product.base_price)` so discounts stay accurate as you edit products. Saving badge = `original − bundle_price`.
+## 6. Custom Verse Builder Update
 
-**Page:** hero, 4 bundle cards with thumbnail strip (3 mini ArtPreviews), strikethrough original, big bundle price, "Save £X" badge, "Add Bundle to Cart" button (adds each item with default size/material).
+The existing `/custom` builder currently only offers Gita verses. Add a **toggle at the top: Gita ⇄ Ramayana** so customers can build personalised art from either epic (e.g., "Raghupati Raghav Raja Ram" calligraphy).
 
----
+## 7. Brand Tagline Update
 
-## 3. India coming-soon (new `/india` route)
+Update tagline everywhere from *"Wisdom of the Bhagavad Gita on your wall"* to:
 
-**DB:** `india_signups(id, email unique, created_at)`. Public insert allowed; admin read.
+> **"Two epics. One eternal dharma. On your wall."**
 
-**Page sections:**
-- Hero: 🇮🇳 flag, heading, description, email capture → inserts to `india_signups`, success toast.
-- Note line: "Prices shown in ₹ (INR) — checkout in INR launches with the India site."
-- INR price preview table (5 rows as specified).
-- "Free delivery across India on orders above ₹1999."
-- Features grid (4 tiles): local printing, fast delivery, UPI, multilingual.
+Hero subtitle: *Hand-crafted art celebrating the wisdom of the Bhagavad Gita and the timeless story of the Ramayana.*
 
-**Homepage banner:** narrow saffron strip above the footer's newsletter, "Coming Soon to India 🇮🇳 — Join the waitlist", links to `/india`.
+## 8. Translations (i18n)
 
----
+Add Telugu + English entries for all new Ramayana strings (epic names, kanda names, character names, CTAs) to `src/lib/i18n.ts`.
 
-## 4. Stock management
+## 9. FAQ + Blog
 
-**DB migration:** `products` already has `stock_limit`; add `sold_count int default 0`.
-
-**Decrement logic:** done in the existing `stripe-webhook` edge function on `checkout.session.completed`, inside a transaction:
-- For each order_item, `update products set sold_count = sold_count + qty, is_active = (sold_count + qty < stock_limit) where id = ?`.
-- No DB trigger — keeps test/admin inserts safe and lets us reverse on refunds later.
-
-**`<StockBar />` component:** progress bar (sold/total), "X of Y remaining" label, red "Only X left!" when ≤5, "SOLD OUT" badge + disabled CTA at 0. Animated fill on mount.
-
-**Where shown:** Shop card and ProductDetail — only when `stock_limit !== null`. Spec says hand-written category; we'll show whenever `stock_limit` is set so admin controls it per product.
-
----
-
-## 5. Telugu language toggle
-
-- `LanguageProvider` in `src/hooks/useLanguage.tsx` with React context, persisted in `localStorage`.
-- `EN | తెలుగు` pill in navbar (desktop + mobile menu).
-- `src/lib/i18n.ts` typed dictionary covering ~30 keys: hero headline, section titles ("Featured Gita Quotes", "Hindu God Portraits", "Words from Our Devotees"), About-Gita body (3 paragraphs from your spec), CTAs.
-- Product cards and detail page swap `english_meaning` → `telugu_meaning` when Telugu active (data already exists).
-- **Always English:** navbar links, footer, checkout, legal, admin, blog.
-
-No `translations` table — dictionary is faster and type-safe. Easy to add later if non-devs need to edit copy.
-
----
-
-## 6. FAQ chatbot (floating, all pages)
-
-- `<ChatWidget />` mounted in `PageLayout`.
-- Floating 💬 bubble bottom-right, opens animated panel (Framer Motion scale+slide).
-- Header "DivineVerse Support", greeting "Namaste! 🙏 How can we help you today?".
-- 4 quick-reply buttons with the exact answers from your spec.
-- Text input does **keyword matching** against an FAQ map (delivery/return/size/custom/contact/india keywords → matching answer). Unknown → "I'm not sure — try a quick reply above, or email hello@divineverseart.com."
-- Conversation kept in component state only (not persisted).
-
----
-
-## 7. Admin enhancement
-
-- Products table gains `stock_limit` + `sold_count` columns (sold_count read-only).
-- Inline edit for `stock_limit` (number input + save).
-- Hand-written category rows render a purple `chip` badge.
-
----
-
-## 8. Legal + supporting pages
-
-New routes, all linked from footer (replace `#` placeholders):
-- `/privacy` — GDPR-aware Privacy Policy (data collected, lawful basis, rights, contact).
-- `/terms` — UK e-commerce T&Cs (orders, pricing, delivery, IP, liability, governing law).
-- `/refunds` — 30-day returns, conditions, process, refund timing, custom-order exclusions.
-- `/contact` — email + form (writes to a new `contact_messages` table; admin reads).
-- `/faq` — sectioned FAQ mirroring chatbot answers + more.
-- `/size-guide` — visual A4/A3/A2 rectangles at relative scale with cm dimensions; 4 material cards (Poster 200gsm, Canvas 340gsm, Cloth Tapestry, Eco Paper 180gsm) with descriptions.
-
----
-
-## 9. Navigation updates
-
-Navbar (desktop): Shop · Bundles · Custom · About Gita · Blog · `EN|తె` toggle.
-Footer: add Bundles, India, Size Guide, Contact, FAQ, Privacy, Terms, Refunds.
+- Add 3 Ramayana FAQ entries (Which Ramayana? Valmiki vs Tulsidas? Is the Sanskrit accurate?)
+- Add 2 starter blog posts: *"7 Kandas of the Ramayana explained"* and *"Why every home needs a Ram Darbar"*
 
 ---
 
 ## Technical notes
 
-**New deps:** `framer-motion`.
-
-**New files:**
-- `src/components/ChatWidget.tsx`, `StockBar.tsx`, `LanguageToggle.tsx`, `MotionSection.tsx` (scroll-reveal wrapper), `BundleCard.tsx`
-- `src/hooks/useLanguage.tsx`
-- `src/lib/i18n.ts`, `src/lib/bundles.ts`
-- `src/pages/Bundles.tsx`, `India.tsx`, `Privacy.tsx`, `Terms.tsx`, `Refunds.tsx`, `Contact.tsx`, `FAQ.tsx`, `SizeGuide.tsx`
-
-**Migrations (one file):**
-- `bundles`, `bundle_items`, `india_signups`, `contact_messages` tables + RLS
-- `alter table products add column sold_count int not null default 0`
-- Seed 4 bundles + their items
-
-**Edge function:** update `stripe-webhook` to decrement stock on `paid`.
-
-**Out of scope (deferred):**
-- Real INR checkout / Stripe India.
-- AI chatbot (using keyword match per your choice).
-- Translations DB table (using typed dictionary).
-- DB trigger for stock (using webhook for safety).
+- **Migration**: `ALTER TYPE product_category ADD VALUE 'ramayana_quote'` etc. (must be separate migration from inserts because Postgres requires enum values to be committed before use).
+- **Seed data**: insert ~10 products + 4 bundles + bundle_items via migration.
+- **Routing**: add `/ramayana` and `/about` routes in `src/App.tsx`; keep `/about-gita` as redirect.
+- **Components**: new `TwinHero.tsx`, update `Shop.tsx` with `?epic=` query param filter, update `Navbar.tsx` dropdowns.
+- **No breaking changes** to existing Gita products, bundles, or orders.
 
 ---
 
-## What you'll get
+## What you get
 
-12 routes → 19 routes. New: `/bundles`, `/india`, `/privacy`, `/terms`, `/refunds`, `/contact`, `/faq`, `/size-guide`. Plus stock bars, Telugu toggle, floating chatbot, and a noticeably more modern, animated feel across the whole site.
+- Doubles your addressable market (Ram bhakts are arguably bigger than pure Gita audience right now post-Ayodhya)
+- Strong brand differentiation: most "Hindu art" stores sell scattered deities — you'll be the only one structured around the **two great epics** as twin pillars
+- Cross-sell opportunity via Twin Wisdom Bundle
+- Better SEO: ranks for both "Bhagavad Gita wall art" AND "Ramayana wall art" / "Ram Darbar painting" / "Hanuman Chalisa frame"
+
+Approve and I'll build it all in one go.
