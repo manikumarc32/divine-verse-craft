@@ -207,6 +207,44 @@ export function MeaningsEditor() {
                 />
               </Field>
             </div>
+
+            <div className="mt-5 pt-5 border-t border-border space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="text-xs uppercase tracking-wider text-brand-mid">Layout mode</label>
+                <Select
+                  value={valueOf(row, "layout_mode") || "verse"}
+                  onValueChange={(v) => setField(row.id, "layout_mode", v)}
+                >
+                  <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="verse">Verse (short quote)</SelectItem>
+                    <SelectItem value="chalisa">Chalisa / scripture (long text)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-brand-mid">Use "Chalisa" for full Hanuman Chalisa, Sahasranamam, etc.</p>
+              </div>
+
+              {(valueOf(row, "layout_mode") === "chalisa") && (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <Field label="Full text (Telugu) — paste the complete chalisa / stotram">
+                    <Textarea
+                      value={valueOf(row, "full_text_te")}
+                      onChange={(e) => setField(row.id, "full_text_te", e.target.value)}
+                      rows={14}
+                      className="telugu text-sm"
+                    />
+                  </Field>
+                  <Field label="Full text (English / transliteration) — optional">
+                    <Textarea
+                      value={valueOf(row, "full_text_en")}
+                      onChange={(e) => setField(row.id, "full_text_en", e.target.value)}
+                      rows={14}
+                      className="text-sm"
+                    />
+                  </Field>
+                </div>
+              )}
+            </div>
           </div>
         ))}
         {filtered.length === 0 && (
