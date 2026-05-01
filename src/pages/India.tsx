@@ -38,7 +38,7 @@ export default function India() {
   async function notify(e: React.FormEvent) {
     e.preventDefault();
     const guard = checkAntiBot({ honeypot: hp, mountedAt: mountedAt.current, formKey: "india_waitlist" });
-    if (!guard.ok) {
+    if (guard.ok === false) {
       if (!guard.silent) toast.error(guard.reason);
       return;
     }

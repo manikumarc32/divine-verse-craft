@@ -28,7 +28,7 @@ export default function Contact() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const guard = checkAntiBot({ honeypot: hp, mountedAt: mountedAt.current, formKey: "contact" });
-    if (!guard.ok) {
+    if (guard.ok === false) {
       if (!guard.silent) toast.error(guard.reason);
       return;
     }
