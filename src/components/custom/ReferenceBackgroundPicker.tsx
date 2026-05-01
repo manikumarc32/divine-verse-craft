@@ -11,12 +11,10 @@ export interface RefBg {
   url: string;
 }
 
+// Note: deity images (Hanuman, Krishna, Shiva) are intentionally NOT auto-generated.
+// Authentic photographs/artwork must be uploaded by the admin via the dashboard
+// to ensure traditional, respectful representation. Only neutral textures ship by default.
 export const REFERENCE_BACKGROUNDS: RefBg[] = [
-  { id: "hanuman", label: "Hanuman — meditating", group: "Hanuman", url: `${base}/hanuman.jpg` },
-  { id: "hanuman-statue", label: "Hanuman — bronze statue", group: "Hanuman", url: `${base}/hanuman-statue.jpg` },
-  { id: "hanuman-silhouette", label: "Hanuman — orange silhouette", group: "Hanuman", url: `${base}/hanuman-silhouette.jpg` },
-  { id: "krishna", label: "Krishna — flute & feather", group: "Krishna", url: `${base}/krishna.jpg` },
-  { id: "shiva", label: "Shiva — Himalayas", group: "Shiva", url: `${base}/shiva.jpg` },
   { id: "parchment", label: "Aged parchment", group: "Textures", url: `${base}/parchment.jpg` },
   { id: "peacock", label: "Peacock feather", group: "Textures", url: `${base}/peacock.jpg` },
   { id: "temple-wall", label: "Temple wall", group: "Textures", url: `${base}/temple-wall.jpg` },
