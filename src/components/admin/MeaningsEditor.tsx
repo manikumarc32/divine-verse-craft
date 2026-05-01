@@ -42,7 +42,7 @@ export function MeaningsEditor() {
     setLoading(true);
     const { data, error } = await supabase
       .from("products")
-      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te,hero_image_url")
+      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te,hero_image_url,layout_mode,full_text_te,full_text_en")
       .order("category")
       .order("sort_order");
     if (error) toast.error(error.message);
