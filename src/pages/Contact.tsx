@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageLayout } from "@/components/PageLayout";
 import { LotusIcon } from "@/components/icons/LotusIcon";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Mail, MessageSquare } from "lucide-react";
+import { checkAntiBot, markSubmitted, honeypotClass } from "@/lib/antiBot";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name required").max(120),
@@ -21,9 +22,16 @@ export default function Contact() {
   useEffect(() => { document.title = "Contact — DivineVerse Art"; }, []);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [hp, setHp] = useState("");
+  const mountedAt = useRef(Date.now());
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const guard = checkAntiBot({ honeypot: hp, mountedAt: mountedAt.current, formKey: "contact" });
+    if (guard.ok === false) {
+      if (!guard.silent) toast.error(guard.reason);
+      return;
+    }
     const parsed = schema.safeParse(form);
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     setSubmitting(true);
@@ -35,6 +43,7 @@ export default function Contact() {
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
+    markSubmitted("contact");
     toast.success("Message sent! We usually reply within 24 hours.");
     setForm({ name: "", email: "", subject: "", message: "" });
   }
@@ -69,6 +78,17 @@ export default function Contact() {
           </aside>
 
           <form onSubmit={submit} className="card-spiritual p-6 space-y-4">
+            {/* honeypot */}
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              name="website"
+              value={hp}
+              onChange={(e) => setHp(e.target.value)}
+              className={honeypotClass}
+            />
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label>Name</Label>

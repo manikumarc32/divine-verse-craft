@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { PageLayout } from "@/components/PageLayout";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Printer, Truck, Wallet, Languages } from "lucide-react";
+import { checkAntiBot, markSubmitted, honeypotClass } from "@/lib/antiBot";
 
 const PRICES = [
   { item: "A4 Poster", price: "₹499" },
@@ -29,11 +30,18 @@ export default function India() {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [signed, setSigned] = useState(false);
+  const [hp, setHp] = useState("");
+  const mountedAt = useRef(Date.now());
 
   useEffect(() => { document.title = "Coming Soon to India — DivineVerse Art"; }, []);
 
   async function notify(e: React.FormEvent) {
     e.preventDefault();
+    const guard = checkAntiBot({ honeypot: hp, mountedAt: mountedAt.current, formKey: "india_waitlist" });
+    if (guard.ok === false) {
+      if (!guard.silent) toast.error(guard.reason);
+      return;
+    }
     const parsed = emailSchema.safeParse(email);
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     setSubmitting(true);
@@ -46,6 +54,7 @@ export default function India() {
       }
       return toast.error(error.message);
     }
+    markSubmitted("india_waitlist");
     setSigned(true);
     setEmail("");
     toast.success("Added to the India waitlist! 🇮🇳");
@@ -78,6 +87,16 @@ export default function India() {
           </p>
 
           <form onSubmit={notify} className="max-w-md mx-auto flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              name="company"
+              value={hp}
+              onChange={(e) => setHp(e.target.value)}
+              className={honeypotClass}
+            />
             <Input
               type="email"
               placeholder="your@email.com"
