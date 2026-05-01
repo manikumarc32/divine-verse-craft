@@ -17,7 +17,7 @@ const HEADINGS = new Set([
   "Doha", "Dhyanam", "Chaupai",
 ]);
 
-const MEANING_PREFIX = /^(అర్థం|అర్ధం|Meaning|अर्थ)\s*[:：]\s*/;
+const MEANING_PREFIX = /^(అర్థం|అర్ధం|Meaning|अर्थ)\s*(?:\([^)]*\))?\s*[:：]\s*/;
 
 interface Block {
   kind: "heading" | "verse" | "meaning";
@@ -44,7 +44,7 @@ function parse(text: string): Block[] {
     // Detect verse number on any line e.g. "॥ 1 ॥", "॥1॥", or Telugu digits "౧"
     let number: string | undefined;
     for (const ln of lines) {
-      const m = ln.match(/॥\s*([\d౦-౯०-९]+)\s*॥/);
+      const m = ln.match(/(?:॥|\|\|)\s*([\d౦-౯०-९]+)\s*(?:॥|\|\|)/);
       if (m) { number = m[1]; break; }
     }
     blocks.push({ kind: "verse", lines, number });
@@ -104,7 +104,7 @@ export function ChalisaView({ text, title, heroImageUrl, className }: ChalisaVie
                 {b.lines.map((line, j) => {
                   // strip trailing verse number from whichever line carries it
                   const clean = b.number
-                    ? line.replace(/॥\s*[\d౦-౯०-९]+\s*॥\s*$/, "").replace(/॥\s*[\d౦-౯०-९]+\s*॥/, "").trim()
+                    ? line.replace(/(?:॥|\|\|)\s*[\d౦-౯०-९]+\s*(?:॥|\|\|)\s*$/, "").replace(/(?:॥|\|\|)\s*[\d౦-౯०-९]+\s*(?:॥|\|\|)/, "").trim()
                     : line;
                   if (!clean) return null;
                   return (

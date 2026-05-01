@@ -1,54 +1,43 @@
-## Convert "Buddhi-heen Tanu Janike" into the full Hanuman Chalisa with verse-by-verse meanings
+## Replace the Hanuman Chalisa product text with your final Telugu version
 
-You're on `/product/hanuman-chalisa-doha` and you don't want a single short quote anymore. You want this product to display the complete Hanuman Chalisa in Telugu — Doha, Dhyanam, all 40 Chaupais, closing Doha — with the **అర్థం (meaning)** shown beneath each verse, exactly in the format you pasted.
+You want the product at `/product/hanuman-chalisa-doha` updated so its scripture body matches the exact Telugu Chalisa you just pasted (Doha → Dhyanam → 40 Chaupais with `అర్థం:` after each → closing Doha). No code rewrites of meanings, no AI rephrasing — your text, verbatim.
 
 ### What will change
 
-**1. Update the existing product (`hanuman-chalisa-doha`)**
-- Rename title: `"Buddhi-heen Tanu Janike"` → `"Sri Hanuman Chalisa (శ్రీ హనుమాన చాలీసా)"`
-- Set `layout_mode = 'chalisa'`
-- Populate `full_text_te` with the full text you pasted, with verses and their అర్థం paragraphs preserved.
-- Clear the small one-line `telugu_meaning` / `english_meaning` / `sanskrit` fields so the old short-quote UI no longer appears.
+**1. Database update only (no schema change)**
 
-**2. Upgrade `ChalisaView.tsx` to render verse + meaning blocks**
+Update the single row `products.slug = 'hanuman-chalisa-doha'`:
+- `title` → `శ్రీ హనుమాన్ చాలీసా`
+- `layout_mode` → `'chalisa'` (already set, will reaffirm)
+- `full_text_te` → the complete text you pasted, verbatim, with paragraphs separated by blank lines so the parser recognises each verse + meaning block.
+- Leave `sanskrit`, `english_meaning`, `telugu_meaning` as `NULL` (already cleared) so no short-quote UI reappears.
 
-Currently it parses paragraphs as headings or numbered verses. We'll extend the parser to also recognise lines starting with `అర్థం:` and render them as a distinct meaning block:
+**2. Tiny parser tweak in `ChalisaView.tsx`**
 
-```text
-verse (centered, serif Telugu, gold ॥ N ॥)
-   ↓
-అర్థం: ... (left-aligned, smaller, muted brand colour, italic-ish, 
-            indented "meaning ribbon" with subtle left border)
+Your verse 14 & 15 are written as **one combined block** with a single shared `అర్థం (14 & 15):` line. The current parser regex `^(అర్థం|అర్ధం|Meaning|अर्थ)\s*[:：]` requires the colon to come right after the word. We'll relax it slightly so things like `అర్థం (14 & 15):` are also recognised as a meaning block:
+
+```
+const MEANING_PREFIX = /^(అర్థం|అర్ధం|Meaning|अर्थ)\s*(?:\([^)]*\))?\s*[:：]\s*/;
 ```
 
-This keeps the scripture/meaning rhythm clear and makes it readable both on screen and in print.
+Also: some of your verses have the verse number markers like `|| ౧ ||` using single bars (`|`) instead of `॥`. The current verse-number regex only matches `॥ … ॥`. We'll extend it to also accept `||`:
 
-**3. Hide the "4.8 (0 reviews)" stars block when there are no reviews**
+```
+/(?:॥|\|\|)\s*([\d౦-౯०-९]+)\s*(?:॥|\|\|)/
+```
 
-In `ProductDetail.tsx`, only render the rating row when `review_count > 0`. So new/unreviewed products show a clean header without the misleading "4.8 (0 reviews)".
+That's the only code change needed — visuals, print styles, and product UI behaviour stay as they are.
 
-**4. Hide the small "verse quote" UI for chalisa products**
+### Files touched
 
-For `layout_mode === 'chalisa'`:
-- Don't show the **Language** pill row (the chalisa is Telugu-only by design here).
-- Don't show the `VerseMeaningDialog` "Show deeper meaning" button (meanings are inline now).
-- Keep Size / Material / Frame / Add to Cart — buying a printed chalisa poster still makes sense.
-
-**5. Print stylesheet polish**
-
-Already added in `index.css`. We'll just make sure the new `.chalisa-meaning` block prints in dark grey on white with comfortable line-height.
-
-### Files to be edited
-
-- `src/components/ChalisaView.tsx` — parser + new meaning block styling
-- `src/pages/ProductDetail.tsx` — conditional rating row, hide language/deeper-meaning for chalisa
-- `src/index.css` — print + screen styles for `.chalisa-meaning`
-- DB update (via insert tool) on `products` row `slug = 'hanuman-chalisa-doha'`:
-  - `title`, `layout_mode`, `full_text_te`, plus null out `sanskrit/english_meaning/telugu_meaning`
+- `src/components/ChalisaView.tsx` — two regex updates (meaning prefix + verse number markers).
+- DB update via insert tool on `products` row `slug = 'hanuman-chalisa-doha'` — title + `full_text_te` set to your exact text.
 
 ### Notes
 
-- I'll use the full Telugu text (Doha + Dhyanam + 40 verses + meanings + closing Doha) exactly as you pasted, no AI rewriting, no deity image generation.
-- The existing `hanuman-chalisa-complete` and `jai-hanuman-gyan` rows remain untouched (you can decide later whether to merge or delete duplicates).
+- No image generation, no AI rewriting of any meaning.
+- The `4.8 (0 reviews)` row is already hidden when there are no reviews.
+- Language toggle and "Show deeper meaning" button stay hidden for chalisa products (already done).
+- Print / Save as PDF continues to work via the existing `@media print` rules.
 
-Approve and I'll implement.
+Approve and I'll apply the DB update and the small parser tweak.
