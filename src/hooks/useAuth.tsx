@@ -26,15 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Listener FIRST, then getSession
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt, sess) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((evt, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
-      if (sess?.user) {
-        // Defer role fetch to avoid deadlocks
-        setTimeout(() => fetchRole(sess.user.id), 0);
-      } else {
+      if (evt === "SIGNED_OUT" || !sess?.user) {
         setIsAdmin(false);
+        return;
       }
+      // Defer role fetch to avoid deadlocks
+      setTimeout(() => fetchRole(sess.user.id), 0);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
