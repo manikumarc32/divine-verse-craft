@@ -18,10 +18,11 @@ type ProductRow = {
   telugu_meaning: string | null;
   deeper_meaning: string | null;
   deeper_meaning_te: string | null;
+  hero_image_url: string | null;
 };
 
 type Edits = Partial<Pick<ProductRow,
-  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te"
+  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te" | "hero_image_url"
 >>;
 
 export function MeaningsEditor() {
@@ -38,7 +39,7 @@ export function MeaningsEditor() {
     setLoading(true);
     const { data, error } = await supabase
       .from("products")
-      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te")
+      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te,hero_image_url")
       .order("category")
       .order("sort_order");
     if (error) toast.error(error.message);
