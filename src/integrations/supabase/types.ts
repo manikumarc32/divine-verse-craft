@@ -53,6 +53,111 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_items: {
+        Row: {
+          bundle_id: string
+          id: string
+          product_id: string
+          quantity: number
+          sort_order: number | null
+        }
+        Insert: {
+          bundle_id: string
+          id?: string
+          product_id: string
+          quantity?: number
+          sort_order?: number | null
+        }
+        Update: {
+          bundle_id?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_items_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bundles: {
+        Row: {
+          badge: string | null
+          bundle_price: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          slug: string
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          bundle_price: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          slug: string
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          bundle_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          slug?: string
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       frames: {
         Row: {
           code: string
@@ -74,6 +179,24 @@ export type Database = {
           label?: string
           price_modifier?: number
           sort_order?: number | null
+        }
+        Relationships: []
+      }
+      india_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
         }
         Relationships: []
       }
@@ -251,6 +374,7 @@ export type Database = {
           review_count: number | null
           sanskrit: string | null
           slug: string
+          sold_count: number
           sort_order: number | null
           stock_limit: number | null
           telugu_meaning: string | null
@@ -271,6 +395,7 @@ export type Database = {
           review_count?: number | null
           sanskrit?: string | null
           slug: string
+          sold_count?: number
           sort_order?: number | null
           stock_limit?: number | null
           telugu_meaning?: string | null
@@ -291,6 +416,7 @@ export type Database = {
           review_count?: number | null
           sanskrit?: string | null
           slug?: string
+          sold_count?: number
           sort_order?: number | null
           stock_limit?: number | null
           telugu_meaning?: string | null
