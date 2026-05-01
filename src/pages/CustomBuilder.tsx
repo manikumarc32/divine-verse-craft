@@ -106,15 +106,11 @@ export default function CustomBuilder() {
         meaning: subLine,
         font,
         bgColor: bgImageUrl ? "image" : bg,
-        // @ts-expect-error extending freely-typed customData
         bgImageUrl,
-        // @ts-expect-error
         textColor,
-        // @ts-expect-error
         overlay,
-        // @ts-expect-error
         copyrightAck: true,
-      },
+      } as any,
       sanskrit: undefined,
       englishMeaning: quote,
       size, material: "poster", frame,
