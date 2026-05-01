@@ -22,6 +22,9 @@ interface FullProduct extends ProductSummary {
   stock_limit: number | null;
   sold_count: number | null;
   review_count?: number | null;
+  full_text_te?: string | null;
+  full_text_en?: string | null;
+  layout_mode?: string | null;
 }
 
 const LANGS = [
