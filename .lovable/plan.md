@@ -1,65 +1,54 @@
-## Add full Hanuman Chalisa (Telugu) as a dedicated product
+## Convert "Buddhi-heen Tanu Janike" into the full Hanuman Chalisa with verse-by-verse meanings
 
-You want the complete Hanuman Chalisa text — Doha, Dhyanam, 40 Chaupais, and closing Doha — displayed in Telugu script on the Jai Hanuman product page (and as a printable poster), instead of just one short verse line.
+You're on `/product/hanuman-chalisa-doha` and you don't want a single short quote anymore. You want this product to display the complete Hanuman Chalisa in Telugu — Doha, Dhyanam, all 40 Chaupais, closing Doha — with the **అర్థం (meaning)** shown beneath each verse, exactly in the format you pasted.
 
 ### What will change
 
-**1. Database — store the full text properly**
+**1. Update the existing product (`hanuman-chalisa-doha`)**
+- Rename title: `"Buddhi-heen Tanu Janike"` → `"Sri Hanuman Chalisa (శ్రీ హనుమాన చాలీసా)"`
+- Set `layout_mode = 'chalisa'`
+- Populate `full_text_te` with the full text you pasted, with verses and their అర్థం paragraphs preserved.
+- Clear the small one-line `telugu_meaning` / `english_meaning` / `sanskrit` fields so the old short-quote UI no longer appears.
 
-Add two new columns to the `products` table:
-- `full_text_te` (text, nullable) — full Telugu chalisa/stotra text
-- `full_text_en` (text, nullable) — optional English transliteration/translation
-- `layout_mode` (text, default `'verse'`) — `'verse'` for short quote products, `'chalisa'` for long-form scripture
+**2. Upgrade `ChalisaView.tsx` to render verse + meaning blocks**
 
-Then insert the full Telugu Hanuman Chalisa text you provided into `full_text_te` for the `jai-hanuman-gyan` product (and rename it to "Sri Hanuman Chalisa" if appropriate).
+Currently it parses paragraphs as headings or numbered verses. We'll extend the parser to also recognise lines starting with `అర్థం:` and render them as a distinct meaning block:
 
-**2. New component — `ChalisaView.tsx`**
+```text
+verse (centered, serif Telugu, gold ॥ N ॥)
+   ↓
+అర్థం: ... (left-aligned, smaller, muted brand colour, italic-ish, 
+            indented "meaning ribbon" with subtle left border)
+```
 
-A scripture-style reader optimised for long Sanskrit/Telugu text:
-- Section headings (దోహా, ధ్యానం, చౌపాఈ, closing దోహా) auto-styled
-- Verse numbering (॥ 1 ॥ … ॥ 40 ॥) highlighted in accent gold
-- Cream parchment background, serif Telugu-friendly font, generous line-height
-- Read-aloud-friendly typography (≥ 18px on mobile, ≥ 20px on desktop)
-- Optional decorative ॐ divider between sections
-- Scrolls within a framed card so it feels like a printed prayer book
+This keeps the scripture/meaning rhythm clear and makes it readable both on screen and in print.
 
-**3. ProductDetail page changes**
+**3. Hide the "4.8 (0 reviews)" stars block when there are no reviews**
 
-When `layout_mode === 'chalisa'` and `full_text_te` is present:
-- Replace the small `ArtPreview` quote card with the full `ChalisaView`
-- Keep the language toggle (English ↔ Telugu) — switches between `full_text_en` and `full_text_te`
-- Keep the existing buy/customise controls below
-- Add a "Print / Save as PDF" button (uses browser print with a print stylesheet so only the chalisa renders cleanly on A4)
+In `ProductDetail.tsx`, only render the rating row when `review_count > 0`. So new/unreviewed products show a clean header without the misleading "4.8 (0 reviews)".
 
-**4. ProductCard (shop grid)**
+**4. Hide the small "verse quote" UI for chalisa products**
 
-For chalisa-mode products, show a compact preview: title + first 2 lines of Doha + "Read full Chalisa →", instead of the artwork mock.
+For `layout_mode === 'chalisa'`:
+- Don't show the **Language** pill row (the chalisa is Telugu-only by design here).
+- Don't show the `VerseMeaningDialog` "Show deeper meaning" button (meanings are inline now).
+- Keep Size / Material / Frame / Add to Cart — buying a printed chalisa poster still makes sense.
 
-**5. Admin editor (`MeaningsEditor.tsx`)**
+**5. Print stylesheet polish**
 
-Add two large textareas: "Full text (Telugu)" and "Full text (English)", plus a `layout_mode` dropdown. So you (or future scripture additions like Vishnu Sahasranamam, Lalitha Sahasranamam, Lingashtakam) can be added without code changes.
+Already added in `index.css`. We'll just make sure the new `.chalisa-meaning` block prints in dark grey on white with comfortable line-height.
 
-**6. Custom Builder note**
+### Files to be edited
 
-The custom builder stays for short personal/movie quotes (one verse, one image). Long scriptures live as products only — they wouldn't fit on a poster anyway.
+- `src/components/ChalisaView.tsx` — parser + new meaning block styling
+- `src/pages/ProductDetail.tsx` — conditional rating row, hide language/deeper-meaning for chalisa
+- `src/index.css` — print + screen styles for `.chalisa-meaning`
+- DB update (via insert tool) on `products` row `slug = 'hanuman-chalisa-doha'`:
+  - `title`, `layout_mode`, `full_text_te`, plus null out `sanskrit/english_meaning/telugu_meaning`
 
-### Technical notes
+### Notes
 
-- Telugu text rendered via system fonts with `font-family: 'Noto Sans Telugu', 'Tiro Telugu', serif` fallback added to `tailwind.config.ts` and loaded from Google Fonts in `index.html`.
-- Print stylesheet: `@media print { hide nav/footer/buttons; .chalisa-print { font-size: 12pt; } }`.
-- No AI-generated deity imagery — the chalisa stands on its own typography. If you later upload an authentic Hanuman image, it will appear as the hero banner above the text via the existing `hero_image_url` field.
-- Migration is additive (new columns, nullable) — no risk to existing products.
-
-### Files to be created / edited
-
-- migration: add `full_text_te`, `full_text_en`, `layout_mode` to `products`
-- data insert: populate Hanuman Chalisa Telugu text
-- new: `src/components/ChalisaView.tsx`
-- new: `src/styles/print.css` (or scoped Tailwind classes)
-- edited: `src/pages/ProductDetail.tsx`
-- edited: `src/components/ProductCard.tsx`
-- edited: `src/components/admin/MeaningsEditor.tsx`
-- edited: `tailwind.config.ts`, `index.html` (Telugu font)
-- edited: `src/integrations/supabase/types.ts` (auto)
+- I'll use the full Telugu text (Doha + Dhyanam + 40 verses + meanings + closing Doha) exactly as you pasted, no AI rewriting, no deity image generation.
+- The existing `hanuman-chalisa-complete` and `jai-hanuman-gyan` rows remain untouched (you can decide later whether to merge or delete duplicates).
 
 Approve and I'll implement.
