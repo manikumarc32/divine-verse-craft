@@ -109,10 +109,12 @@ export default function ProductDetail() {
           <div>
             {product.chapter_ref && <p className="text-xs uppercase tracking-widest text-accent mb-2">{product.chapter_ref}</p>}
             <h1 className="font-serif text-3xl md:text-4xl mb-3">{product.title}</h1>
-            <div className="flex items-center gap-1 mb-4">
-              {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-accent text-accent" />)}
-              <span className="text-sm text-brand-mid ml-1">{Number(product.rating).toFixed(1)} ({product.review_count ?? 0} reviews)</span>
-            </div>
+            {(product.review_count ?? 0) > 0 && (
+              <div className="flex items-center gap-1 mb-4">
+                {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-accent text-accent" />)}
+                <span className="text-sm text-brand-mid ml-1">{Number(product.rating).toFixed(1)} ({product.review_count} reviews)</span>
+              </div>
+            )}
             <p className="font-serif text-3xl text-primary mb-4">{formatGBP(price)}</p>
 
             {product.stock_limit != null && (
@@ -123,7 +125,7 @@ export default function ProductDetail() {
 
             <p className="text-brand-mid mb-4">{product.description}</p>
 
-            {(product.deeper_meaning || product.deeper_meaning_te) && (
+            {product.layout_mode !== "chalisa" && (product.deeper_meaning || product.deeper_meaning_te) && (
               <div className="mb-6">
                 <VerseMeaningDialog
                   variant="button"
@@ -138,7 +140,7 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {(product.sanskrit || product.telugu_meaning) && (
+            {product.layout_mode !== "chalisa" && (product.sanskrit || product.telugu_meaning) && (
               <OptionGroup label="Language">
                 {LANGS.map((l) => (
                   <OptionPill key={l.code} active={language === l.code} onClick={() => setLanguage(l.code)}>
