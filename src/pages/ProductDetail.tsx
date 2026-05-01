@@ -88,14 +88,22 @@ export default function ProductDetail() {
 
         <div className="grid lg:grid-cols-2 gap-12 mt-6">
           <div className="lg:sticky lg:top-24 self-start">
-            <ArtPreview
-              sanskrit={product.sanskrit}
-              meaning={meaning}
-              chapterRef={product.chapter_ref}
-              heroImageUrl={(product as any).hero_image_url}
-              size="lg"
-              frame={frame}
-            />
+            {product.layout_mode === "chalisa" && (product.full_text_te || product.full_text_en) ? (
+              <ChalisaView
+                text={(language === "english" && product.full_text_en) ? product.full_text_en : (product.full_text_te ?? product.full_text_en ?? "")}
+                title={product.title}
+                heroImageUrl={(product as any).hero_image_url}
+              />
+            ) : (
+              <ArtPreview
+                sanskrit={product.sanskrit}
+                meaning={meaning}
+                chapterRef={product.chapter_ref}
+                heroImageUrl={(product as any).hero_image_url}
+                size="lg"
+                frame={frame}
+              />
+            )}
           </div>
 
           <div>
