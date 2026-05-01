@@ -39,74 +39,14 @@ export default function Home() {
 
   return (
     <PageLayout>
-      {/* Hero */}
-      <section className="bg-gradient-hero text-brand-cream relative overflow-hidden grain">
-        {/* Floating Om accents */}
-        <span className="absolute top-16 left-8 text-accent/20 text-7xl float-gentle pointer-events-none select-none hidden md:block">ॐ</span>
-        <span className="absolute bottom-20 right-12 text-accent/15 text-9xl spin-slow pointer-events-none select-none hidden md:block">ॐ</span>
+      <TwinHero />
 
-        <div className="container py-24 md:py-32 text-center relative z-10">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-accent text-xs md:text-sm tracking-[0.4em] mb-5"
-          >
-            {t("hero.eyebrow")}
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="font-serif text-5xl md:text-7xl leading-[1.05] mb-4 text-shadow-soft"
-          >
-            {t("hero.title.a")}<br />
-            <span className="text-accent italic">{t("hero.title.b")}</span>
-          </motion.h1>
-
-          <div className="h-14 mt-8 mb-6 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={verseIdx}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.6 }}
-                className="text-center"
-              >
-                <p className="sanskrit text-xl md:text-2xl text-brand-cream/85">{ROTATING[verseIdx].sans}</p>
-                <p className="text-[11px] tracking-widest uppercase text-accent/80 mt-1">{ROTATING[verseIdx].ref}</p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-brand-cream/70 max-w-xl mx-auto mb-10 text-base md:text-lg"
-          >
-            {t("hero.tagline")}
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Button asChild size="lg" className="bg-gradient-saffron text-primary-foreground border-0 h-12 px-8 shadow-elegant">
-              <Link to="/shop">{t("hero.cta.shop")}</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground h-12 px-8">
-              <Link to="/custom-builder">{t("hero.cta.custom")}</Link>
-            </Button>
-          </motion.div>
-
-          <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto mt-16">
-            <Stat n="150+" l={t("stat.designs")} />
-            <Stat n="4.8 ★" l={t("stat.rating")} />
-            <Stat n="🇬🇧" l={t("stat.uk")} />
-          </div>
+      {/* Stats strip */}
+      <section className="bg-brand-dark text-brand-cream border-b border-brand-cream/10">
+        <div className="container py-8 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+          <Stat n="150+" l={t("stat.designs")} />
+          <Stat n="4.8 ★" l={t("stat.rating")} />
+          <Stat n="🇬🇧" l={t("stat.uk")} />
         </div>
       </section>
 
