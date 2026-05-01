@@ -80,7 +80,7 @@ export default function CustomBuilder() {
       cart.addItem({
         title: "Custom Sacred Verse",
         isCustom: true,
-        customData: { sanskrit, meaning: scriptureMeaning, font, bgColor: bg },
+        customData: { sanskrit, meaning: scriptureMeaning, font, bgColor: bgImageUrl ? "image" : bg, bgImageUrl, textColor, overlay } as any,
         sanskrit,
         englishMeaning: scriptureMeaning,
         size, material: "poster", frame,
