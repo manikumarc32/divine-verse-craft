@@ -104,7 +104,7 @@ export function ChalisaView({ text, title, heroImageUrl, className }: ChalisaVie
                 {b.lines.map((line, j) => {
                   // strip trailing verse number from whichever line carries it
                   const clean = b.number
-                    ? line.replace(/॥\s*[\d౦-౯०-९]+\s*॥\s*$/, "").replace(/॥\s*[\d౦-౯०-९]+\s*॥/, "").trim()
+                    ? line.replace(/(?:॥|\|\|)\s*[\d౦-౯०-९]+\s*(?:॥|\|\|)\s*$/, "").replace(/(?:॥|\|\|)\s*[\d౦-౯०-९]+\s*(?:॥|\|\|)/, "").trim()
                     : line;
                   if (!clean) return null;
                   return (
