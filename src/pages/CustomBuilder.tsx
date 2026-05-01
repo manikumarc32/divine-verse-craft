@@ -166,6 +166,26 @@ export default function CustomBuilder() {
                   <Label htmlFor="me">Meaning / translation</Label>
                   <Textarea id="me" value={scriptureMeaning} onChange={(e) => setScriptureMeaning(e.target.value)} rows={3} maxLength={800} className="mt-2" />
                 </div>
+                <div>
+                  <Label>Background (optional)</Label>
+                  <p className="text-xs text-brand-mid mt-1 mb-2">Place this verse on a deity portrait or texture.</p>
+                  <ReferenceBackgroundPicker value={bgImageUrl} onChange={setBgImageUrl} />
+                </div>
+                {bgImageUrl && (
+                  <div>
+                    <Label>Image darkening (for text readability)</Label>
+                    <input
+                      type="range"
+                      min={0}
+                      max={0.8}
+                      step={0.05}
+                      value={overlay}
+                      onChange={(e) => setOverlay(Number(e.target.value))}
+                      className="w-full mt-2 accent-primary"
+                    />
+                    <p className="text-xs text-brand-mid mt-1">{Math.round(overlay * 100)}%</p>
+                  </div>
+                )}
               </>
             ) : (
               <>
