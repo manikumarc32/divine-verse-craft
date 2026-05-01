@@ -28,6 +28,7 @@ import Refunds from "./pages/Refunds.tsx";
 import Contact from "./pages/Contact.tsx";
 import FAQ from "./pages/FAQ.tsx";
 import SizeGuide from "./pages/SizeGuide.tsx";
+import Ramayana from "./pages/Ramayana.tsx";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/account/orders" element={<Orders />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/about-gita" element={<AboutGita />} />
+              <Route path="/ramayana" element={<Ramayana />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/privacy" element={<Privacy />} />
