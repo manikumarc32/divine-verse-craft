@@ -25,6 +25,7 @@ export interface ProductSummary {
   telugu_meaning?: string | null;
   deeper_meaning?: string | null;
   deeper_meaning_te?: string | null;
+  hero_image_url?: string | null;
   rating: number;
   stock_limit?: number | null;
   sold_count?: number | null;
@@ -84,6 +85,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
               sanskrit={product.sanskrit}
               meaning={lang === "te" ? null : meaning}
               chapterRef={product.chapter_ref}
+              heroImageUrl={product.hero_image_url}
               size="sm"
             />
           </div>

@@ -18,10 +18,11 @@ type ProductRow = {
   telugu_meaning: string | null;
   deeper_meaning: string | null;
   deeper_meaning_te: string | null;
+  hero_image_url: string | null;
 };
 
 type Edits = Partial<Pick<ProductRow,
-  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te"
+  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te" | "hero_image_url"
 >>;
 
 export function MeaningsEditor() {
@@ -38,7 +39,7 @@ export function MeaningsEditor() {
     setLoading(true);
     const { data, error } = await supabase
       .from("products")
-      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te")
+      .select("id,title,category,slug,sanskrit,chapter_ref,english_meaning,telugu_meaning,deeper_meaning,deeper_meaning_te,hero_image_url")
       .order("category")
       .order("sort_order");
     if (error) toast.error(error.message);
@@ -155,6 +156,20 @@ export function MeaningsEditor() {
                   onChange={(e) => setField(row.id, "chapter_ref", e.target.value)}
                   placeholder="e.g. Bhagavad Gita 2.47"
                 />
+              </Field>
+              <Field label="Hero image URL (shows on product card)">
+                <Input
+                  value={valueOf(row, "hero_image_url")}
+                  onChange={(e) => setField(row.id, "hero_image_url", e.target.value)}
+                  placeholder="https://… (leave empty to use the abstract verse card)"
+                />
+                {valueOf(row, "hero_image_url") && (
+                  <img
+                    src={valueOf(row, "hero_image_url")}
+                    alt=""
+                    className="mt-2 h-24 rounded border border-border object-cover"
+                  />
+                )}
               </Field>
               <Field label="Short meaning (English)">
                 <Textarea

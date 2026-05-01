@@ -88,6 +88,7 @@ export default function ProductDetail() {
               sanskrit={product.sanskrit}
               meaning={meaning}
               chapterRef={product.chapter_ref}
+              heroImageUrl={(product as any).hero_image_url}
               size="lg"
               frame={frame}
             />

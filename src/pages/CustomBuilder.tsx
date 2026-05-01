@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { calculatePrice, formatGBP, SIZE_MODIFIERS, FRAME_MODIFIERS } from "@/lib/pricing";
 import { useCart } from "@/lib/cart";
 import { ImageUploader } from "@/components/custom/ImageUploader";
+import { ReferenceBackgroundPicker } from "@/components/custom/ReferenceBackgroundPicker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
@@ -78,7 +80,7 @@ export default function CustomBuilder() {
       cart.addItem({
         title: "Custom Sacred Verse",
         isCustom: true,
-        customData: { sanskrit, meaning: scriptureMeaning, font, bgColor: bg },
+        customData: { sanskrit, meaning: scriptureMeaning, font, bgColor: bgImageUrl ? "image" : bg, bgImageUrl, textColor, overlay } as any,
         sanskrit,
         englishMeaning: scriptureMeaning,
         size, material: "poster", frame,
@@ -164,6 +166,26 @@ export default function CustomBuilder() {
                   <Label htmlFor="me">Meaning / translation</Label>
                   <Textarea id="me" value={scriptureMeaning} onChange={(e) => setScriptureMeaning(e.target.value)} rows={3} maxLength={800} className="mt-2" />
                 </div>
+                <div>
+                  <Label>Background (optional)</Label>
+                  <p className="text-xs text-brand-mid mt-1 mb-2">Place this verse on a deity portrait or texture.</p>
+                  <ReferenceBackgroundPicker value={bgImageUrl} onChange={setBgImageUrl} />
+                </div>
+                {bgImageUrl && (
+                  <div>
+                    <Label>Image darkening (for text readability)</Label>
+                    <input
+                      type="range"
+                      min={0}
+                      max={0.8}
+                      step={0.05}
+                      value={overlay}
+                      onChange={(e) => setOverlay(Number(e.target.value))}
+                      className="w-full mt-2 accent-primary"
+                    />
+                    <p className="text-xs text-brand-mid mt-1">{Math.round(overlay * 100)}%</p>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -192,9 +214,18 @@ export default function CustomBuilder() {
                 </div>
                 <div>
                   <Label>Background image (optional)</Label>
-                  <div className="mt-2">
-                    <ImageUploader value={bgImageUrl} onChange={setBgImageUrl} />
-                  </div>
+                  <Tabs defaultValue="reference" className="mt-2">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="reference">Choose from library</TabsTrigger>
+                      <TabsTrigger value="upload">Upload your own</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="reference" className="mt-3">
+                      <ReferenceBackgroundPicker value={bgImageUrl} onChange={setBgImageUrl} />
+                    </TabsContent>
+                    <TabsContent value="upload" className="mt-3">
+                      <ImageUploader value={bgImageUrl} onChange={setBgImageUrl} />
+                    </TabsContent>
+                  </Tabs>
                 </div>
                 {bgImageUrl && (
                   <div>
@@ -315,6 +346,9 @@ export default function CustomBuilder() {
                 meaning={scriptureMeaning}
                 font={font}
                 bgColor={bg}
+                bgImageUrl={bgImageUrl}
+                textColor={textColor}
+                overlay={overlay}
                 size="lg"
                 frame={frame}
               />
