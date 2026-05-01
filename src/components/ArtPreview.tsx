@@ -3,9 +3,13 @@ import { cn } from "@/lib/utils";
 interface ArtPreviewProps {
   sanskrit?: string | null;
   meaning?: string | null;
+  subLine?: string | null;
   chapterRef?: string | null;
   font?: "serif" | "elegant" | "modern" | "script";
   bgColor?: "cream" | "white" | "dark" | "saffron";
+  bgImageUrl?: string | null;
+  textColor?: string | null;
+  overlay?: number; // 0..1
   size?: "sm" | "md" | "lg";
   frame?: string;
   className?: string;
@@ -36,9 +40,13 @@ const frameStyles: Record<string, string> = {
 export function ArtPreview({
   sanskrit,
   meaning,
+  subLine,
   chapterRef,
   font = 'serif',
   bgColor = 'cream',
+  bgImageUrl,
+  textColor,
+  overlay = 0.35,
   size = 'md',
   frame = 'none',
   className,
@@ -46,24 +54,53 @@ export function ArtPreview({
   const dims = size === 'sm' ? 'min-h-[180px] p-4' : size === 'lg' ? 'min-h-[460px] p-10' : 'min-h-[280px] p-6';
   const sansSize = size === 'sm' ? 'text-base' : size === 'lg' ? 'text-3xl' : 'text-xl';
   const meaningSize = size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm';
-  const isDark = bgColor === 'dark';
+  const isDark = bgColor === 'dark' || !!bgImageUrl;
+
+  const useImage = !!bgImageUrl;
+  const customColorStyle = textColor ? { color: textColor } : undefined;
 
   return (
     <div className={cn('rounded-lg overflow-hidden', frameStyles[frame] ?? frameStyles.none, className)}>
-      <div className={cn('flex flex-col items-center justify-center text-center', dims, bgMap[bgColor], fontMap[font])}>
-        <span className={cn('text-lg mb-3', isDark ? 'text-accent' : 'text-accent')}>ॐ</span>
-        {sanskrit && (
-          <p className={cn('sanskrit leading-relaxed mb-3', sansSize)}>{sanskrit}</p>
+      <div
+        className={cn(
+          'relative flex flex-col items-center justify-center text-center',
+          dims,
+          !useImage && bgMap[bgColor],
+          fontMap[font],
         )}
-        <div className="gold-divider-sm mx-auto" />
-        {meaning && (
-          <p className={cn('mt-3 max-w-prose leading-relaxed opacity-90', meaningSize)}>"{meaning}"</p>
+        style={useImage ? {
+          backgroundImage: `url(${bgImageUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: textColor ?? '#fff',
+        } : customColorStyle}
+      >
+        {useImage && (
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-black"
+            style={{ opacity: overlay }}
+          />
         )}
-        {chapterRef && (
-          <p className={cn('mt-4 text-xs uppercase tracking-widest opacity-70')}>{chapterRef}</p>
-        )}
-        <span className={cn('mt-4 text-base', isDark ? 'text-accent' : 'text-accent')}>ॐ</span>
+        <div className="relative z-10 flex flex-col items-center">
+          <span className={cn('text-lg mb-3 text-accent')}>ॐ</span>
+          {sanskrit && (
+            <p className={cn('sanskrit leading-relaxed mb-3', sansSize)}>{sanskrit}</p>
+          )}
+          <div className="gold-divider-sm mx-auto" />
+          {meaning && (
+            <p className={cn('mt-3 max-w-prose leading-relaxed opacity-90', meaningSize)}>"{meaning}"</p>
+          )}
+          {subLine && (
+            <p className={cn('mt-2 max-w-prose leading-relaxed opacity-80 italic', meaningSize)}>{subLine}</p>
+          )}
+          {chapterRef && (
+            <p className={cn('mt-4 text-xs uppercase tracking-widest opacity-70')}>{chapterRef}</p>
+          )}
+          <span className={cn('mt-4 text-base text-accent')}>ॐ</span>
+        </div>
       </div>
     </div>
   );
 }
+
