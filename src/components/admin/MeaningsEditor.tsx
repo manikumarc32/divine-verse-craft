@@ -157,6 +157,20 @@ export function MeaningsEditor() {
                   placeholder="e.g. Bhagavad Gita 2.47"
                 />
               </Field>
+              <Field label="Hero image URL (shows on product card)">
+                <Input
+                  value={valueOf(row, "hero_image_url")}
+                  onChange={(e) => setField(row.id, "hero_image_url", e.target.value)}
+                  placeholder="https://… (leave empty to use the abstract verse card)"
+                />
+                {valueOf(row, "hero_image_url") && (
+                  <img
+                    src={valueOf(row, "hero_image_url")}
+                    alt=""
+                    className="mt-2 h-24 rounded border border-border object-cover"
+                  />
+                )}
+              </Field>
               <Field label="Short meaning (English)">
                 <Textarea
                   value={valueOf(row, "english_meaning")}
