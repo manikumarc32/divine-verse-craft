@@ -19,10 +19,13 @@ type ProductRow = {
   deeper_meaning: string | null;
   deeper_meaning_te: string | null;
   hero_image_url: string | null;
+  layout_mode: string | null;
+  full_text_te: string | null;
+  full_text_en: string | null;
 };
 
 type Edits = Partial<Pick<ProductRow,
-  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te" | "hero_image_url"
+  "sanskrit" | "chapter_ref" | "english_meaning" | "telugu_meaning" | "deeper_meaning" | "deeper_meaning_te" | "hero_image_url" | "layout_mode" | "full_text_te" | "full_text_en"
 >>;
 
 export function MeaningsEditor() {
