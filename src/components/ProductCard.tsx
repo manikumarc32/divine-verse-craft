@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArtPreview } from "./ArtPreview";
 import { StockBar, isSoldOut } from "./StockBar";
 import { Button } from "./ui/button";
+import { VerseMeaningDialog } from "./VerseMeaningDialog";
 import { useCart } from "@/lib/cart";
 import { useLanguage } from "@/hooks/useLanguage";
 import { formatGBP } from "@/lib/pricing";
@@ -22,6 +23,8 @@ export interface ProductSummary {
   sanskrit: string | null;
   english_meaning: string | null;
   telugu_meaning?: string | null;
+  deeper_meaning?: string | null;
+  deeper_meaning_te?: string | null;
   rating: number;
   stock_limit?: number | null;
   sold_count?: number | null;
@@ -106,9 +109,22 @@ export function ProductCard({ product }: { product: ProductSummary }) {
           {lang === "te" && product.telugu_meaning && (
             <p className="telugu text-xs text-brand-mid mb-2 line-clamp-2">{product.telugu_meaning}</p>
           )}
-          <div className="flex items-center gap-1 text-xs text-brand-mid mb-3">
-            <Star className="h-3 w-3 fill-accent text-accent" />
-            <span>{Number(product.rating).toFixed(1)}</span>
+          <div className="flex items-center justify-between gap-2 text-xs text-brand-mid mb-3">
+            <div className="flex items-center gap-1">
+              <Star className="h-3 w-3 fill-accent text-accent" />
+              <span>{Number(product.rating).toFixed(1)}</span>
+            </div>
+            {(product.deeper_meaning || product.deeper_meaning_te || product.sanskrit) && (
+              <VerseMeaningDialog
+                title={product.title}
+                sanskrit={product.sanskrit}
+                englishMeaning={product.english_meaning}
+                teluguMeaning={product.telugu_meaning}
+                deeperMeaning={product.deeper_meaning}
+                deeperMeaningTe={product.deeper_meaning_te}
+                chapterRef={product.chapter_ref}
+              />
+            )}
           </div>
 
           {product.stock_limit != null && (
