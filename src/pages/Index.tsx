@@ -73,7 +73,36 @@ export default function Home() {
         </div>
       </MotionSection>
 
-      {/* Multilingual banner */}
+      {/* Featured Ramayana Art */}
+      <MotionSection className="bg-brand-cream/60 py-20 border-y border-accent/20">
+        <div className="container">
+          <div className="text-center mb-12">
+            <span className="sanskrit text-3xl text-accent">श्रीराम</span>
+            <h2 className="font-serif text-3xl md:text-5xl mt-2 mb-2">{t("section.ramayana")}</h2>
+            <div className="gold-divider-sm mx-auto" />
+            <p className="text-brand-mid mt-3">{t("section.ramayana.sub")}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {ramayana.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+              >
+                <ProductCard product={p} />
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              <Link to="/shop?epic=ramayana">View all Ramayana art →</Link>
+            </Button>
+          </div>
+        </div>
+      </MotionSection>
+
       <MotionSection className="bg-accent/15 py-16 border-y border-accent/30">
         <div className="container grid md:grid-cols-2 gap-10 items-center">
           <div>
