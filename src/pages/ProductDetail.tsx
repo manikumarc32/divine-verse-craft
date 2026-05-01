@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { PageLayout } from "@/components/PageLayout";
 import { ArtPreview } from "@/components/ArtPreview";
+import { ChalisaView } from "@/components/ChalisaView";
 import { ProductCard, ProductSummary } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
