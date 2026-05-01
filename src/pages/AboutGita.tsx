@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { PageLayout } from "@/components/PageLayout";
 import { LotusIcon } from "@/components/icons/LotusIcon";
 import { MotionSection } from "@/components/MotionSection";
@@ -47,6 +48,17 @@ export default function AboutGita() {
             </Section>
           </MotionSection>
         )}
+
+        <MotionSection delay={0.2}>
+          <Link
+            to="/ramayana"
+            className="block rounded-2xl border border-accent/30 bg-accent/10 p-6 text-center hover:bg-accent/20 transition-colors mt-10 group"
+          >
+            <p className="text-xs uppercase tracking-[0.3em] text-accent mb-2">The Other Great Epic</p>
+            <p className="font-serif text-2xl text-brand-dark mb-1 group-hover:text-primary transition-colors">Read about the Ramayana →</p>
+            <p className="text-sm text-brand-mid">The story of Rama, Sita, and Hanuman — dharma in action.</p>
+          </Link>
+        </MotionSection>
 
         <p className="text-center sanskrit text-lg text-accent mt-12">ॐ शान्तिः शान्तिः शान्तिः ॐ</p>
       </article>
