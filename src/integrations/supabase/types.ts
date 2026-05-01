@@ -390,6 +390,8 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           chapter_ref: string | null
           created_at: string
+          deeper_meaning: string | null
+          deeper_meaning_te: string | null
           description: string | null
           english_meaning: string | null
           id: string
@@ -411,6 +413,8 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           chapter_ref?: string | null
           created_at?: string
+          deeper_meaning?: string | null
+          deeper_meaning_te?: string | null
           description?: string | null
           english_meaning?: string | null
           id?: string
@@ -432,6 +436,8 @@ export type Database = {
           category?: Database["public"]["Enums"]["product_category"]
           chapter_ref?: string | null
           created_at?: string
+          deeper_meaning?: string | null
+          deeper_meaning_te?: string | null
           description?: string | null
           english_meaning?: string | null
           id?: string

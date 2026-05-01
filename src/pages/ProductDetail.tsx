@@ -5,6 +5,7 @@ import { ArtPreview } from "@/components/ArtPreview";
 import { ProductCard, ProductSummary } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { VerseMeaningDialog } from "@/components/VerseMeaningDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { calculatePrice, formatGBP, SIZE_MODIFIERS, MATERIAL_MODIFIERS, FRAME_MODIFIERS } from "@/lib/pricing";
 import { useCart } from "@/lib/cart";
@@ -15,6 +16,8 @@ import { cn } from "@/lib/utils";
 
 interface FullProduct extends ProductSummary {
   telugu_meaning: string | null;
+  deeper_meaning: string | null;
+  deeper_meaning_te: string | null;
   description: string | null;
   stock_limit: number | null;
   sold_count: number | null;
@@ -105,7 +108,22 @@ export default function ProductDetail() {
               </div>
             )}
 
-            <p className="text-brand-mid mb-8">{product.description}</p>
+            <p className="text-brand-mid mb-4">{product.description}</p>
+
+            {(product.deeper_meaning || product.deeper_meaning_te) && (
+              <div className="mb-6">
+                <VerseMeaningDialog
+                  variant="button"
+                  title={product.title}
+                  sanskrit={product.sanskrit}
+                  englishMeaning={product.english_meaning}
+                  teluguMeaning={product.telugu_meaning}
+                  deeperMeaning={product.deeper_meaning}
+                  deeperMeaningTe={product.deeper_meaning_te}
+                  chapterRef={product.chapter_ref}
+                />
+              </div>
+            )}
 
             {(product.sanskrit || product.telugu_meaning) && (
               <OptionGroup label="Language">

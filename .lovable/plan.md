@@ -1,64 +1,62 @@
-# Homepage + Footer copy, sections & working newsletter
+# Verse Meaning Popup
 
-The homepage already has testimonials and trust badges, and the footer already has a newsletter input — but the input is **fake** (just shows a toast, doesn't save anywhere). This plan makes it real and rounds out the page with a few missing sections.
+Many shoppers don't know Sanskrit. Right now we show a short one-line meaning on each card — but they want to understand the verse deeper before they buy. We'll add a small **"What does this mean?"** link under every verse. Tapping it opens a clean popup with the big verse and a short, friendly explanation (English + Telugu).
 
-## 1. Make the newsletter form real (DB + footer wiring)
+## What the user will see
 
-**New table `newsletter_subscribers`** (via migration):
-- `email` (unique), `source` (e.g. `footer`, `popup`), `unsubscribed_at`, `created_at`
-- RLS: anyone can INSERT (with email-format validation at the DB level, mirroring our other public forms); only admins can SELECT / UPDATE / DELETE
-- Unique constraint on email so duplicates are silently rejected (no enumeration leak)
+A small link beneath every Sanskrit verse:
+> ॐ सर्वे भवन्तु सुखिनः
+> *"May all beings be happy."*
+> [ What does this mean? → ]
 
-**Update `src/components/Footer.tsx`:**
-- Replace the toast-only handler with a real Supabase `insert` into `newsletter_subscribers`
-- Add Zod email validation client-side
-- Add the same anti-bot guard we use elsewhere (honeypot + 1.5s time-trap)
-- Treat duplicates (`23505`) as "you're already subscribed 🙏"
-- Add small copy above the input: *"Join our circle — new verses, story drops, and 10% off your first order. No spam, ever."*
-- Add Instagram, Facebook, and email icons under the form (links open in new tab with `rel="noopener noreferrer"`)
+Tapping it opens a centered modal:
 
-## 2. New homepage sections (additions, no removals)
+```text
+┌─────────────────────────────────────┐
+│              ॐ                      │
+│   सर्वे भवन्तु सुखिनः                │
+│      ───── gold ─────               │
+│   "May all beings be happy."        │
+│                                     │
+│   📖 The deeper meaning             │
+│   A short, 2–3 sentence plain-      │
+│   English explanation of what the   │
+│   verse teaches and when people     │
+│   chant it.                         │
+│                                     │
+│   📜 In Telugu                      │
+│   తెలుగులో అర్థం…                    │
+│                                     │
+│   — Bhagavad Gita 2.47              │
+│   [ Add to cart £39 ]  [ Close ]    │
+└─────────────────────────────────────┘
+```
 
-Insert these between the existing sections in `src/pages/Index.tsx`:
+## Where the popup will appear
 
-**a) "Why DivineVerse" — three-pillar story strip** (after Stats, before Featured Gita)
-Three cards with icons + short copy:
-- *Crafted in the UK* — "Printed and packed by hand in Surrey on archival giclée paper or pure cotton canvas."
-- *Authentic verses* — "Every Sanskrit shloka is sourced from verified Vedic editions, with chapter & verse referenced on the back."
-- *Made to last 100 years* — "Pigment inks rated for a century of fade-resistance, signed and numbered editions."
+1. **Product cards** on Shop, Bundles, Homepage featured collection — small "What does this mean?" link under the meaning line.
+2. **Product detail page** — a more prominent "Read the full meaning" button below the verse.
+3. **Homepage hero / featured verse** — same link.
 
-**b) "How it works" — 4-step ordering flow** (after the Karma Yoga language card)
-Numbered steps with icons:
-1. Choose a verse or scene
-2. Pick size, material & frame
-3. Add your language (Sanskrit / Telugu / English)
-4. Printed in the UK, dispatched in 2–3 days
+## Content
 
-**c) "Featured in" press strip** (small, between trust badges and IndiaBanner)
-A muted row of placeholder publication names: *"As featured in — Hindustan Times · Eastern Eye · Asian Voice · The Spiritual Times"* (clearly editorial-styled; you can swap real names later).
+We'll add a new **`deeper_meaning`** field (English) and **`deeper_meaning_te`** (Telugu) to each product — a 2–4 sentence friendly explanation written for someone with no Sanskrit background. I'll seed this for all existing products using authentic interpretations from established Gita/Ramayana sources.
 
-**d) Expand testimonials**: bump from 3 to 6 quotes in a 2×3 grid, add city/country tags (e.g. "London, UK · verified buyer") and one star-rating summary header: *"Rated 4.8 / 5 from 240+ happy customers"*.
+For verses that don't yet have a deeper meaning written, the popup gracefully falls back to just showing the verse + short meaning + chapter reference (no empty section).
 
-**e) Final CTA banner** (just before the footer)
-Saffron gradient band: *"Bring eternal wisdom home"* with two buttons — **Shop the Gita** and **Build your own**.
+## Technical changes
 
-## 3. Footer polish (in addition to the newsletter)
+- **Database migration**: add `deeper_meaning text` and `deeper_meaning_te text` columns to `products` (nullable). Backfill all existing rows with curated explanations.
+- **New component** `src/components/VerseMeaningDialog.tsx` — uses existing shadcn `Dialog`, shows `ArtPreview` at the top + the deeper meaning sections + chapter ref + an "Add to cart" CTA.
+- **Update `ProductCard.tsx`** — add the trigger link below the meaning line; render the dialog.
+- **Update `ProductDetail.tsx`** — add a "Read the full meaning" button near the verse.
+- **Update `Index.tsx`** featured section — same trigger link.
+- **i18n keys** in `src/lib/i18n.ts` for English + Telugu: `verse.whatMeans`, `verse.deeper`, `verse.inTelugu`, `verse.close`, `verse.dialogTitle`.
+- **Types**: regenerated automatically after migration.
 
-- Add a top "wave" / divider so the saffron homepage CTA flows into the dark footer cleanly
-- Add accepted-payments row above the bottom copyright: Visa · Mastercard · Amex · PayPal · Apple Pay · Google Pay (lucide icons / monochrome)
-- Add a tiny "Made with 🪷 in the UK" tagline under the logo
+## Out of scope
 
-## 4. Files touched
+- No CAPTCHA / pre-launch polish (per your earlier note).
+- Custom Builder verses won't get this popup (user-typed, no curated meaning).
 
-- `supabase/migrations/<new>.sql` — newsletter_subscribers table + RLS
-- `src/components/Footer.tsx` — real subscription, social icons, payments row, polish
-- `src/pages/Index.tsx` — new sections (a–e), expanded testimonials
-- `src/lib/i18n.ts` — add translation keys for new headings (so the language toggle still works)
-- `.lovable/plan.md` — updated
-
-### Out of scope
-- Email confirmation / double opt-in flow (can add later if needed)
-- Sending actual newsletters (you'll export from the admin or hook to Mailchimp/Resend later)
-- New images — using existing assets and icons only
-
-Approve and I'll ship all of it in one pass.
+Approve and I'll build it.
