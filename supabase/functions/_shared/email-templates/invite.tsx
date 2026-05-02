@@ -1,18 +1,7 @@
 /// <reference types="npm:@types/react@18.3.1" />
-
 import * as React from 'npm:react@18.3.1'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Link,
-  Preview,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+import { Body, Button, Head, Heading, Html, Link, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
+import { BrandHeader, BrandFooter, Outer, GoldDivider, styles, brand } from './_brand.tsx'
 
 interface InviteEmailProps {
   siteName: string
@@ -20,60 +9,39 @@ interface InviteEmailProps {
   confirmationUrl: string
 }
 
-export const InviteEmail = ({
-  siteName,
-  siteUrl,
-  confirmationUrl,
-}: InviteEmailProps) => (
+export const InviteEmail = ({ siteUrl, confirmationUrl }: InviteEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>You've been invited to join {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>You've been invited</Heading>
-        <Text style={text}>
-          You've been invited to join{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
-          </Link>
-          . Click the button below to accept the invitation and create your
-          account.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Accept Invitation
-        </Button>
-        <Text style={footer}>
-          If you weren't expecting this invitation, you can safely ignore this
-          email.
-        </Text>
-      </Container>
+    <Preview>You've been invited to DivineVerse Art</Preview>
+    <Body style={styles.body}>
+      <Outer>
+        <BrandHeader tagline="YOU'RE INVITED" />
+        <Section style={styles.contentSection}>
+          <Heading as="h1" style={styles.h1}>You've been invited 🪷</Heading>
+          <Text style={{ ...styles.text, textAlign: 'center', color: brand.mid }}>
+            Welcome to{' '}
+            <Link href={siteUrl} style={styles.link}>DivineVerse Art</Link>.
+          </Text>
+
+          <GoldDivider />
+
+          <Text style={styles.text}>
+            Accept the invitation below to create your account and begin your journey
+            with sacred art.
+          </Text>
+
+          <Section style={{ textAlign: 'center', margin: '24px 0' }}>
+            <Button href={confirmationUrl} style={styles.button}>Accept invitation</Button>
+          </Section>
+
+          <Text style={styles.footer}>
+            If you weren't expecting this invitation, you can safely ignore this email.
+          </Text>
+        </Section>
+        <BrandFooter />
+      </Outer>
     </Body>
   </Html>
 )
 
 export default InviteEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const link = { color: 'inherit', textDecoration: 'underline' }
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
