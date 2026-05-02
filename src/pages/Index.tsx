@@ -72,16 +72,17 @@ export default function Home() {
     document.title = "DivineVerse Art — Bhagavad Gita & Ramayana Wall Art";
     (async () => {
       const { data: g } = await supabase
-        .from("products").select("*").eq("category", "gita_quote")
+        .from("products").select("*").eq("category", "gita_quote").eq("is_launch_ready", true)
         .order("sort_order").limit(3);
       setGita((g ?? []) as unknown as ProductSummary[]);
       const { data: r } = await supabase
         .from("products").select("*")
         .in("category", ["ramayana_quote", "ramayana_scene", "hanuman_chalisa"])
+        .eq("is_launch_ready", true)
         .order("sort_order").limit(3);
       setRamayana((r ?? []) as unknown as ProductSummary[]);
       const { data: p } = await supabase
-        .from("products").select("*").eq("category", "god_portrait")
+        .from("products").select("*").eq("category", "god_portrait").eq("is_launch_ready", true)
         .order("sort_order").limit(3);
       setPortraits((p ?? []) as unknown as ProductSummary[]);
     })();
