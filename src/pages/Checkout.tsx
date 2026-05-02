@@ -118,6 +118,55 @@ export default function Checkout() {
         }
       }
 
+      // Send branded order confirmation email (non-blocking).
+      // TODO: when real Stripe webhook lands, move this trigger into the webhook
+      // handler so retries are server-driven; idempotencyKey already covers that.
+      try {
+        const firstName = form.full_name.trim().split(/\s+/)[0] || undefined;
+        const orderShortId = order.id.slice(0, 6).toUpperCase();
+        const orderDate = new Date(order.created_at).toLocaleDateString("en-GB", {
+          day: "numeric", month: "long", year: "numeric",
+        });
+        const eta =
+          zone === "UK" ? "3–5 working days (UK)"
+          : zone === "EU" ? "5–8 working days (Europe)"
+          : "7–14 working days (Rest of World)";
+        const addressLines = [
+          form.full_name,
+          form.address_line1,
+          form.city,
+          form.postcode,
+          zone === "UK" ? "United Kingdom" : zone === "EU" ? "Europe" : "International",
+        ].filter(Boolean);
+        const emailItems = cart.items.map((i) => ({
+          title: i.title,
+          quantity: i.quantity,
+          lineTotal: formatGBP(i.unitPrice * i.quantity),
+          details: [i.size, i.material, i.frame, i.language].filter(Boolean).join(" · "),
+        }));
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "order-confirmation",
+            recipientEmail: form.email,
+            idempotencyKey: `order-confirm-${order.id}`,
+            templateData: {
+              firstName,
+              orderShortId,
+              orderDate,
+              items: emailItems,
+              addressLines,
+              subtotal: formatGBP(subtotal),
+              shipping: shipping === 0 ? "FREE" : formatGBP(shipping),
+              total: formatGBP(total),
+              estimatedDelivery: eta,
+              viewOrderUrl: `${window.location.origin}/account/orders`,
+            },
+          },
+        });
+      } catch (e) {
+        console.warn("order confirmation email enqueue failed", e);
+      }
+
       cart.clear();
       navigate(`/checkout/success?order=${order.id}`);
     } catch (err: any) {

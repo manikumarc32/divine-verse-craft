@@ -48,7 +48,7 @@ export default function Register() {
     const p = schema.safeParse(form);
     if (!p.success) return toast.error(p.error.issues[0].message);
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
@@ -58,6 +58,21 @@ export default function Register() {
     });
     setBusy(false);
     if (error) return toast.error(error.message);
+
+    // Send branded welcome email (non-blocking)
+    const newUserId = data.user?.id ?? form.email;
+    const firstName = form.full_name.trim().split(/\s+/)[0] || undefined;
+    supabase.functions
+      .invoke("send-transactional-email", {
+        body: {
+          templateName: "welcome",
+          recipientEmail: form.email,
+          idempotencyKey: `welcome-${newUserId}`,
+          templateData: { firstName },
+        },
+      })
+      .catch((e) => console.warn("welcome email enqueue failed", e));
+
     toast.success("Account created — welcome!");
     navigate("/account");
   }
