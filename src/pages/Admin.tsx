@@ -64,9 +64,44 @@ export default function Admin() {
     refresh();
   }
   async function updateStatus(id: string, status: string) {
+    const prev = orders.find((o) => o.id === id);
     const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Order updated");
+
+    // Fire shipping notification when transitioning into "shipped" (idempotent per order).
+    if (status === "shipped" && prev && prev.status !== "shipped") {
+      try {
+        const firstName = (prev.full_name ?? "").trim().split(/\s+/)[0] || undefined;
+        const orderShortId = String(prev.id).slice(0, 6).toUpperCase();
+        const addressLines = [
+          prev.full_name,
+          prev.address_line1,
+          prev.address_line2,
+          prev.city,
+          prev.postcode,
+          prev.country,
+        ].filter(Boolean);
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "shipping-notification",
+            recipientEmail: prev.email,
+            idempotencyKey: `shipped-${prev.id}`,
+            templateData: {
+              firstName,
+              orderShortId,
+              shipDate: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+              addressLines,
+            },
+          },
+        });
+        toast.success("Shipping email sent");
+      } catch (e: any) {
+        console.warn("shipping email enqueue failed", e);
+        toast.error("Order updated, but shipping email failed to enqueue");
+      }
+    }
+
     refresh();
   }
   async function deletePost(id: string) {

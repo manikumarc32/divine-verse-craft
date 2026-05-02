@@ -29,6 +29,7 @@ import Contact from "./pages/Contact.tsx";
 import FAQ from "./pages/FAQ.tsx";
 import SizeGuide from "./pages/SizeGuide.tsx";
 import Ramayana from "./pages/Ramayana.tsx";
+import Unsubscribe from "./pages/Unsubscribe.tsx";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/size-guide" element={<SizeGuide />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </LanguageProvider>
