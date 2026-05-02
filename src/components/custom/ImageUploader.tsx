@@ -25,9 +25,16 @@ export function ImageUploader({ value, onChange }: Props) {
       toast.error("Image must be 8MB or smaller.");
       return;
     }
+
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      toast.error("Please sign in to upload your custom image.");
+      return;
+    }
+
     setBusy(true);
     const ext = file.name.split(".").pop() ?? "jpg";
-    const path = `uploads/${crypto.randomUUID()}.${ext}`;
+    const path = `${userData.user.id}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("custom-uploads").upload(path, file, {
       contentType: file.type,
       upsert: false,
@@ -37,8 +44,16 @@ export function ImageUploader({ value, onChange }: Props) {
       toast.error(error.message);
       return;
     }
-    const { data } = supabase.storage.from("custom-uploads").getPublicUrl(path);
-    onChange(data.publicUrl);
+    // Bucket is private — generate a signed URL valid for 7 days for preview
+    const { data: signed, error: signErr } = await supabase.storage
+      .from("custom-uploads")
+      .createSignedUrl(path, 60 * 60 * 24 * 7);
+    if (signErr || !signed) {
+      setBusy(false);
+      toast.error("Could not generate preview URL");
+      return;
+    }
+    onChange(signed.signedUrl);
     setBusy(false);
     toast.success("Image uploaded");
   }
@@ -86,7 +101,7 @@ export function ImageUploader({ value, onChange }: Props) {
           </span>
         </Button>
       )}
-      <p className="text-[11px] text-brand-mid">JPG, PNG or WebP. You confirm you own or have rights to use this image.</p>
+      <p className="text-[11px] text-brand-mid">JPG, PNG or WebP. Sign in required. You confirm you own or have rights to use this image.</p>
     </div>
   );
 }
