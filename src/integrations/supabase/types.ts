@@ -526,7 +526,7 @@ export type Database = {
           id: string
           product_id: string
           rating: number
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           author_name: string
@@ -535,7 +535,7 @@ export type Database = {
           id?: string
           product_id: string
           rating: number
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           author_name?: string
@@ -544,7 +544,7 @@ export type Database = {
           id?: string
           product_id?: string
           rating?: number
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
