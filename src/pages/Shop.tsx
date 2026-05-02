@@ -38,7 +38,7 @@ export default function Shop() {
 
   useEffect(() => {
     document.title = "Shop Sacred Wall Art — DivineVerse Art";
-    supabase.from("products").select("*").eq("is_active", true).order("sort_order")
+    supabase.from("products").select("*").eq("is_active", true).eq("is_launch_ready", true).order("sort_order")
       .then(({ data }) => setProducts((data ?? []) as unknown as ProductSummary[]));
   }, []);
 
