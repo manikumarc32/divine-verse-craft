@@ -426,15 +426,18 @@ export type Database = {
           hero_image_url: string | null
           id: string
           is_active: boolean | null
+          is_launch_ready: boolean
           layout_mode: string
           rating: number | null
           review_count: number | null
+          risk_notes: string | null
           sanskrit: string | null
           slug: string
           sold_count: number
           sort_order: number | null
           stock_limit: number | null
           telugu_meaning: string | null
+          tier: Database["public"]["Enums"]["product_tier"]
           title: string
           updated_at: string
         }
@@ -453,15 +456,18 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
+          is_launch_ready?: boolean
           layout_mode?: string
           rating?: number | null
           review_count?: number | null
+          risk_notes?: string | null
           sanskrit?: string | null
           slug: string
           sold_count?: number
           sort_order?: number | null
           stock_limit?: number | null
           telugu_meaning?: string | null
+          tier?: Database["public"]["Enums"]["product_tier"]
           title: string
           updated_at?: string
         }
@@ -480,15 +486,18 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
+          is_launch_ready?: boolean
           layout_mode?: string
           rating?: number | null
           review_count?: number | null
+          risk_notes?: string | null
           sanskrit?: string | null
           slug?: string
           sold_count?: number
           sort_order?: number | null
           stock_limit?: number | null
           telugu_meaning?: string | null
+          tier?: Database["public"]["Enums"]["product_tier"]
           title?: string
           updated_at?: string
         }
@@ -693,6 +702,7 @@ export type Database = {
         | "ramayana_quote"
         | "ramayana_scene"
         | "hanuman_chalisa"
+      product_tier: "standard" | "premium" | "custom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -840,6 +850,7 @@ export const Constants = {
         "ramayana_scene",
         "hanuman_chalisa",
       ],
+      product_tier: ["standard", "premium", "custom"],
     },
   },
 } as const
