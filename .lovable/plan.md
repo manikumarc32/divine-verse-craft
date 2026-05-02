@@ -1,92 +1,131 @@
 
-# Phase 1 Launch — Payments, Email, Phone, Badge
+# DivineVerse Art — Branded Email Templates + Triggers
 
-Four parallel actions to get DivineVerse Art ready for real customers.
-
----
-
-## 1. Enable Stripe Payments (Step C)
-
-Launch the Lovable-hosted Stripe setup form. You'll fill in:
-- Business name (e.g. "DivineVerse Art")
-- Email (defaults to your Lovable account email — editable, can use `you+divineverse@…`)
-
-**What happens automatically:**
-- Test environment created instantly — you can run mock checkouts with test cards (no real money)
-- Live payments unlock after you claim/verify the Stripe account
-- No API keys needed from you
-
-**Tax handling:** going with **Option 3 (no tax automation)** for Phase 1, as previously agreed. Easy to upgrade later.
-
-**After enabling**, I will:
-1. Create Stripe products for the 6 launch-ready items (mapped to their `base_price` in GBP)
-2. Replace the mock "paid" insert in `src/pages/Checkout.tsx` with a real `create-checkout` edge function that opens a Stripe Checkout session
-3. Add a `stripe-webhook` edge function to mark orders `paid` and decrement stock only after Stripe confirms payment
-4. Update `CheckoutSuccess.tsx` to verify the session via the webhook/order status
+Set up 3 transactional emails + 1 auth (password reset) email + wire automatic sending. Domain `notify.divinverseart.com` is already configured (DNS verifying).
 
 ---
 
-## 2. Transactional Email — Recommendation
+## Important clarification on your request
 
-You need emails for: order confirmation, shipping update, password reset, contact form replies.
-
-**Recommended: Lovable Emails (built-in, via Resend)**
-- No third-party signup — uses Lovable's email infrastructure
-- Custom-branded auth emails (verification, password reset, magic link)
-- Transactional emails (order confirmation, shipping) sent from your domain
-- Requires verifying a sending domain you own (e.g. `divinverseart.com` — you already own it ✅)
-
-**Setup steps after approval:**
-1. Verify `divinverseart.com` as the sending domain (DNS records — I'll show you exactly what to add at your registrar)
-2. Scaffold auth email templates (branded saffron/gold to match the site)
-3. Scaffold a `send-order-confirmation` transactional function, called from the Stripe webhook after a successful payment
-4. Optional: a `send-contact-reply` for the contact form
-
-**Alternative considered:** raw Resend/SendGrid integration — rejected, more setup and no built-in template UI.
+- **Order confirmation, shipping notification, welcome** → these are **transactional emails** (correct, going via `send-transactional-email`)
+- **Password reset** → this is an **auth email**, *not* transactional. It uses Supabase's auth-email-hook system, which is a **separate** scaffold tool. I'll set both up in this same run.
+- **Reply-To header**: Lovable's transactional queue does not currently support custom Reply-To headers. Workaround: prominent **"Reply to: orders@divinverseart.com"** line in the footer of each email, and the From address will be `DivineVerse Art <noreply@notify.divinverseart.com>`. Customer replies to the noreply will bounce — but the in-email instruction directs them to your real address (which the ImprovMX/Cloudflare forwarding will route to Gmail).
+- **"Sent from `orders@notify.divinverseart.com`"**: not changeable per-template — all transactional sends use the single `noreply@notify.divinverseart.com` From address baked into the send function. The "Reply to:" line in the footer makes this unambiguous to customers.
+- **Stripe webhook**: doesn't exist yet (Stripe enable was interrupted). For now I'll trigger the order-confirmation email from `Checkout.tsx` right after the order row is inserted (current mock-paid flow). When we wire the real Stripe webhook later, we move the trigger there with `idempotencyKey = order.id` so retries don't double-send.
 
 ---
 
-## 3. Customer Phone Call — Recommendation
+## What I'll build
 
-You don't need a real phone line for Phase 1. Recommendation:
+### 1. Shared brand kit — `supabase/functions/_shared/transactional-email-templates/_brand.tsx`
+Reusable React Email pieces:
+- `<BrandHeader>` — cream background, lotus SVG (inlined as data URI so it works in Gmail/Outlook), "DivineVerse Art" wordmark in saffron Georgia, ॐ symbol in gold, optional tagline
+- `<GoldDivider>` — gold gradient horizontal rule
+- `<BrandFooter replyTo="orders@divinverseart.com">` — "Reply directly… or write to orders@divinverseart.com" + tagline + site link
+- `styles` object — saffron `#D4760A` buttons, gold `#B8942D` accents, cream `#FFFAF3` content area, white outer Body (per email-system rule), Georgia serif headings, ink/mid text colors
 
-**Primary: WhatsApp Business "Click to Chat" link** (free, instant)
-- Add a floating WhatsApp button next to the existing `ChatWidget`
-- Link format: `https://wa.me/44XXXXXXXXXX?text=Hi%20DivineVerse...`
-- Works on mobile (opens WhatsApp app) and desktop (opens WhatsApp Web)
-- Show your number on Contact page + footer
+### 2. Three transactional templates
 
-**Secondary (if you want a real phone callback): Twilio**
-- Lovable has a built-in Twilio connector (no scraping API keys)
-- Adds a "Request a callback" form on Contact page → triggers an SMS to your phone with the customer's number + message
-- Costs ~£0.04 per SMS, requires a Twilio number (~£1/month)
-- I'd build this only if you confirm — Phase 1 likely doesn't need it
+**`order-confirmation.tsx`** — Subject: *"Your DivineVerse order #{shortId} is confirmed 🪷"*
+- Brand header + heading "Namaste {firstName}, your order is confirmed"
+- Order number + date + payment status (cards, gold-bordered)
+- Items list (title, size/material/frame, qty, line total) using compact rows
+- Shipping address block
+- Subtotal / shipping / total
+- Estimated delivery line (zone-aware: UK 3–5 days, EU 5–8, ROW 7–14)
+- "View order" button → `https://divinverseart.com/account/orders` (saffron)
+- Footer with reply-to
 
-**My pick for Phase 1:** WhatsApp button only. Add Twilio later if you get callback requests.
+**`shipping-notification.tsx`** — Subject: *"Your DivineVerse order #{shortId} is on its way ✈️"*
+- Brand header + "Your blessing is on its way"
+- Order number, ship date, carrier (optional), tracking number (optional, with link template)
+- Shipping address recap
+- Estimated arrival
+- "Track package" button if tracking provided
+- Reassurance copy + reply-to footer
 
-**You need to give me:** the WhatsApp number to use (e.g. `+44 7XXX XXXXXX`).
+**`welcome.tsx`** — Subject: *"Namaste! Welcome to DivineVerse Art 🙏"*
+- Brand header with tagline "SACRED ART · CRAFTED WITH DEVOTION"
+- Greeting "Namaste {firstName}, welcome to our family"
+- Short paragraph about the brand mission (Sanskrit verses, sacred art, crafted in UK)
+- 3 quick-action cards: "Browse the Shop" / "Build a Custom Piece" / "Read About the Gita"
+- 10% off welcome chip is **deliberately omitted** (would make this a marketing email, which Lovable's transactional system blocks)
+- Reply-to footer
+
+### 3. Registry — `supabase/functions/_shared/transactional-email-templates/registry.ts`
+Standard `TEMPLATES` map with the 3 entries + each template's `previewData` for the dashboard preview.
+
+### 4. Config — `supabase/config.toml`
+Append the 4 transactional function blocks (`send-transactional-email`, `preview-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`) — required by the scaffold tool.
+
+### 5. Unsubscribe page — `src/pages/Unsubscribe.tsx` + route in `src/App.tsx`
+- Reads `?token=` from URL
+- GET to `handle-email-unsubscribe` to validate (uses raw fetch + apikey because supabase.functions.invoke is POST-only)
+- Branded states: "Confirm unsubscribe" button (saffron) → POST → success / already-unsubscribed / invalid-token
+- Wrapped in `PageLayout` for consistent navbar/footer
+
+### 6. Wire the triggers
+
+**Order confirmation — `src/pages/Checkout.tsx`**
+After `order_items` insert succeeds (and before `cart.clear()`), call:
+```ts
+await supabase.functions.invoke('send-transactional-email', {
+  body: {
+    templateName: 'order-confirmation',
+    recipientEmail: form.email,
+    idempotencyKey: `order-confirm-${order.id}`,
+    templateData: {
+      firstName, orderShortId, items, address, subtotal, shipping, total, zone, estimatedDelivery
+    }
+  }
+})
+```
+Wrapped in try/catch — email failure must NOT block the user landing on the success page.
+
+**Welcome email — `src/pages/Register.tsx`**
+After successful `supabase.auth.signUp`, fire the `welcome` template (idempotencyKey = `welcome-${user.id}`). Same try/catch pattern.
+
+**Shipping notification — `src/pages/Admin.tsx`**
+In the orders-management section, when admin updates `orders.status` to `'shipped'`, invoke `shipping-notification` with `idempotencyKey = shipped-${order.id}`. (If Admin.tsx doesn't yet have an order-status updater, I'll add a small "Mark as shipped" button on each order row that updates status + sends the email atomically.)
+
+### 7. Password reset (auth email)
+Run `scaffold_auth_email_templates` → it creates 6 auth templates (signup, magic-link, recovery, invite, email-change, reauthentication). I'll style **all 6** with the same brand kit so they're visually consistent — then deploy `auth-email-hook`. Recovery template = the password-reset branded email you asked for.
+
+### 8. Deploy
+Deploy: `send-transactional-email`, `preview-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`, `auth-email-hook`.
 
 ---
 
-## 4. Hide "Edit with Lovable" Badge
-
-Toggle the badge off on the published site (`divinverseart.com` and `divine-verse-craft.lovable.app`).
-
-Requires Pro plan or higher (you should already be on it since payments needs Pro too — I'll verify when toggling).
+## What I will NOT do (and why)
+- ❌ Add discount codes / promo banners / "shop more" CTAs to welcome → would re-classify it as marketing, blocked by Lovable
+- ❌ Change `noreply@notify.divinverseart.com` to `orders@notify.divinverseart.com` per-template → not supported; cosmetic only
+- ❌ Wire to a Stripe webhook → webhook doesn't exist yet (Stripe enable was interrupted). Trigger from Checkout.tsx for now; migrate when webhook lands.
 
 ---
 
-## Execution Order Once Approved
+## Files created/edited
 
-1. **Hide badge** (instant, 1 tool call)
-2. **Enable Stripe** (you fill the form → I wire up products + checkout + webhook)
-3. **Set up Lovable Emails** (you add DNS records → I scaffold templates + order-confirmation function)
-4. **Add WhatsApp button** (need your number; I'll add it to Footer + ChatWidget area)
+**New:**
+- `supabase/functions/_shared/transactional-email-templates/_brand.tsx`
+- `supabase/functions/_shared/transactional-email-templates/registry.ts`
+- `supabase/functions/_shared/transactional-email-templates/order-confirmation.tsx`
+- `supabase/functions/_shared/transactional-email-templates/shipping-notification.tsx`
+- `supabase/functions/_shared/transactional-email-templates/welcome.tsx`
+- `src/pages/Unsubscribe.tsx`
+- (auth email templates auto-created by scaffold tool, then re-styled)
 
-## Questions before I start
+**Edited:**
+- `supabase/config.toml` — append 4 function blocks
+- `src/App.tsx` — add `/unsubscribe` route
+- `src/pages/Checkout.tsx` — fire order-confirmation after order insert
+- `src/pages/Register.tsx` — fire welcome after signup
+- `src/pages/Admin.tsx` — add "Mark as shipped" action that fires shipping-notification
 
-- WhatsApp number to use? (or skip and just add Twilio callback later?)
-- For Stripe products: should I price them exactly at the `base_price` from the DB, or do you want a different launch price?
-- Email "from" address — `orders@divinverseart.com` and `hello@divinverseart.com` OK?
+---
 
-Reply **"go"** to start with steps 1 + 2 (badge + Stripe enable form) immediately, and answer the 3 questions in the same message so I can keep momentum.
+## Notes for you
+- **Domain warmup**: `notify.divinverseart.com` is brand new. Deliverability improves over the first 2–4 weeks as Gmail/Outlook build trust. Start with low volumes — your real customers in Phase 1 will be perfect for warming.
+- **Setup status**: monitor in **Cloud → Emails**. Templates will queue immediately, but actual delivery only starts once DNS verification flips to active.
+- **Forwarding** (`orders@divinverseart.com → manikumarc32@gmail.com`) — you still need to set this up separately at your registrar (ImprovMX recommendation from earlier). Without it, the "Reply to: orders@divinverseart.com" line in emails goes nowhere.
+
+Reply **"go"** and I'll execute everything in one pass.
