@@ -151,6 +151,7 @@ export default function Admin() {
         <Tabs defaultValue="products">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="prodigi"><Printer className="h-4 w-4 mr-1" />Prodigi Setup</TabsTrigger>
             <TabsTrigger value="meanings"><Languages className="h-4 w-4 mr-1" />Meanings</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
