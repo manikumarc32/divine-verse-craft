@@ -9,9 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatGBP } from "@/lib/pricing";
 import { toast } from "sonner";
-import { Package, ShoppingBag, Users, BookOpen, Languages } from "lucide-react";
+import { Package, ShoppingBag, Users, BookOpen, Languages, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MeaningsEditor } from "@/components/admin/MeaningsEditor";
+import { ProdigiSetupTab } from "@/components/admin/ProdigiSetupTab";
 
 export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
@@ -150,6 +151,7 @@ export default function Admin() {
         <Tabs defaultValue="products">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="prodigi"><Printer className="h-4 w-4 mr-1" />Prodigi Setup</TabsTrigger>
             <TabsTrigger value="meanings"><Languages className="h-4 w-4 mr-1" />Meanings</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
@@ -225,6 +227,10 @@ export default function Admin() {
                 </tbody>
               </table>
             </div>
+          </TabsContent>
+
+          <TabsContent value="prodigi" className="mt-6">
+            <ProdigiSetupTab products={products} onChanged={refresh} />
           </TabsContent>
 
           <TabsContent value="meanings" className="mt-6">
