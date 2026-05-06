@@ -9,9 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatGBP } from "@/lib/pricing";
 import { toast } from "sonner";
-import { Package, ShoppingBag, Users, BookOpen, Languages } from "lucide-react";
+import { Package, ShoppingBag, Users, BookOpen, Languages, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MeaningsEditor } from "@/components/admin/MeaningsEditor";
+import { ProdigiSetupTab } from "@/components/admin/ProdigiSetupTab";
 
 export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
