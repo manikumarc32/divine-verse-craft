@@ -163,8 +163,10 @@ export default function Admin() {
                     <th className="p-3">Title</th>
                     <th className="p-3">Category</th>
                     <th className="p-3">Base price</th>
-                    <th className="p-3">Stock limit</th>
+                    <th className="p-3">Stock</th>
                     <th className="p-3">Sold</th>
+                    <th className="p-3">Prodigi SKU</th>
+                    <th className="p-3">Print asset URL</th>
                     <th className="p-3">Active</th>
                   </tr>
                 </thead>
@@ -195,11 +197,27 @@ export default function Admin() {
                             const v = e.target.value.trim();
                             updateStock(p.id, v === "" ? null : Number(v));
                           }}
-                          className="w-24 h-9"
+                          className="w-20 h-9"
                         />
                       </td>
                       <td className={cn("p-3 font-mono", p.sold_count > 0 && "text-primary font-semibold")}>
                         {p.sold_count ?? 0}
+                      </td>
+                      <td className="p-3">
+                        <Input
+                          defaultValue={p.prodigi_sku ?? ""}
+                          placeholder="GLOBAL-CFPM-16X20"
+                          onBlur={(e) => updateProductField(p.id, { prodigi_sku: e.target.value.trim() || null })}
+                          className="w-44 h-9 font-mono text-xs"
+                        />
+                      </td>
+                      <td className="p-3">
+                        <Input
+                          defaultValue={p.prodigi_asset_url ?? ""}
+                          placeholder="https://… (falls back to hero image)"
+                          onBlur={(e) => updateProductField(p.id, { prodigi_asset_url: e.target.value.trim() || null })}
+                          className="w-64 h-9 text-xs"
+                        />
                       </td>
                       <td className="p-3">{p.is_active ? "✓" : "—"}</td>
                     </tr>
@@ -208,8 +226,6 @@ export default function Admin() {
               </table>
             </div>
           </TabsContent>
-
-          <TabsContent value="meanings" className="mt-6">
             <MeaningsEditor />
           </TabsContent>
 
