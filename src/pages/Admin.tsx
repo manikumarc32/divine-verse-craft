@@ -226,6 +226,8 @@ export default function Admin() {
               </table>
             </div>
           </TabsContent>
+
+          <TabsContent value="meanings" className="mt-6">
             <MeaningsEditor />
           </TabsContent>
 
@@ -233,7 +235,14 @@ export default function Admin() {
             <div className="card-spiritual overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted text-left">
-                  <tr><th className="p-3">#</th><th className="p-3">Date</th><th className="p-3">Customer</th><th className="p-3">Total</th><th className="p-3">Status</th></tr>
+                  <tr>
+                    <th className="p-3">#</th>
+                    <th className="p-3">Date</th>
+                    <th className="p-3">Customer</th>
+                    <th className="p-3">Total</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3">Prodigi</th>
+                  </tr>
                 </thead>
                 <tbody>
                   {orders.map((o) => (
@@ -244,16 +253,34 @@ export default function Admin() {
                       <td className="p-3">{formatGBP(Number(o.total))}</td>
                       <td className="p-3">
                         <Select defaultValue={o.status} onValueChange={(v) => updateStatus(o.id, v)}>
-                          <SelectTrigger className="w-32 h-9"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="w-36 h-9"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {["pending","paid","fulfilled","shipped","delivered","cancelled","refunded"].map(s =>
+                            {["pending","paid","in_production","fulfilled","shipped","delivered","cancelled","refunded"].map(s =>
                               <SelectItem key={s} value={s}>{s}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </td>
+                      <td className="p-3 text-xs">
+                        {o.prodigi_order_id ? (
+                          <div>
+                            <p className="font-mono">{o.prodigi_order_id.slice(0, 10)}…</p>
+                            <p className="text-brand-mid">{o.prodigi_status}</p>
+                          </div>
+                        ) : o.prodigi_last_error ? (
+                          <p className="text-destructive max-w-[200px] truncate" title={o.prodigi_last_error}>
+                            ⚠ {o.prodigi_last_error}
+                          </p>
+                        ) : (
+                          <span className="text-brand-mid">—</span>
+                        )}
+                        <Button size="sm" variant="outline" className="mt-1 h-7 text-xs"
+                          onClick={() => retryProdigi(o.id)}>
+                          {o.prodigi_order_id ? "Resubmit" : "Send to Prodigi"}
+                        </Button>
+                      </td>
                     </tr>
                   ))}
-                  {orders.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-brand-mid">No orders yet</td></tr>}
+                  {orders.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-brand-mid">No orders yet</td></tr>}
                 </tbody>
               </table>
             </div>
