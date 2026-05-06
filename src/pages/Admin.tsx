@@ -63,6 +63,22 @@ export default function Admin() {
     toast.success("Stock limit updated");
     refresh();
   }
+  async function updateProductField(id: string, field: string, value: any) {
+    const { error } = await supabase.from("products").update({ [field]: value }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Saved");
+    refresh();
+  }
+  async function retryProdigi(orderId: string) {
+    toast.info("Submitting to Prodigi…");
+    const { data, error } = await supabase.functions.invoke("submit-prodigi-order", {
+      body: { order_id: orderId, force: true },
+    });
+    if (error) return toast.error(error.message);
+    if ((data as any)?.error) return toast.error((data as any).error);
+    toast.success("Sent to Prodigi");
+    refresh();
+  }
   async function updateStatus(id: string, status: string) {
     const prev = orders.find((o) => o.id === id);
     const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
