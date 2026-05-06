@@ -167,6 +167,16 @@ export default function Checkout() {
         console.warn("order confirmation email enqueue failed", e);
       }
 
+      // Submit to Prodigi for fulfilment (sandbox). Non-blocking — admin can retry from dashboard.
+      // TODO: move into Stripe webhook once real payment flow is wired.
+      try {
+        await supabase.functions.invoke("submit-prodigi-order", {
+          body: { order_id: order.id },
+        });
+      } catch (e) {
+        console.warn("prodigi submission failed", e);
+      }
+
       cart.clear();
       navigate(`/checkout/success?order=${order.id}`);
     } catch (err: any) {
