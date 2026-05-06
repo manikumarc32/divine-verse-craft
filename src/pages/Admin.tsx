@@ -63,8 +63,8 @@ export default function Admin() {
     toast.success("Stock limit updated");
     refresh();
   }
-  async function updateProductField(id: string, field: string, value: any) {
-    const { error } = await supabase.from("products").update({ [field]: value }).eq("id", id);
+  async function updateProductField(id: string, patch: Record<string, any>) {
+    const { error } = await supabase.from("products").update(patch as any).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Saved");
     refresh();
