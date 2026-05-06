@@ -13,3 +13,5 @@ project_id = "nodrmbkrlposqytxpevv"
     verify_jwt = true
   [functions.send-transactional-email]
     verify_jwt = true
+  [functions.submit-prodigi-order]
+    verify_jwt = true
