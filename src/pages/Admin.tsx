@@ -229,6 +229,10 @@ export default function Admin() {
             </div>
           </TabsContent>
 
+          <TabsContent value="prodigi" className="mt-6">
+            <ProdigiSetupTab products={products} onChanged={refresh} />
+          </TabsContent>
+
           <TabsContent value="meanings" className="mt-6">
             <MeaningsEditor />
           </TabsContent>
