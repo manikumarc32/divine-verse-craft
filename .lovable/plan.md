@@ -1,37 +1,41 @@
-## Goal
+# Prodigi Print-on-Demand Integration (Sandbox)
 
-Enable Lovable's built-in Stripe payments, deploy a Stripe webhook handler, and move the `order-confirmation` email trigger from `src/pages/Checkout.tsx` into the webhook so the email only sends after a real payment is confirmed by Stripe.
+Wire Prodigi into the order pipeline so paid Stripe orders are automatically submitted to Prodigi for printing & shipping.
 
-## Steps
+## 1. Secrets
+- Store the Prodigi API key as `PRODIGI_API_KEY` (sandbox value `9749728c-...`) via the secrets tool.
+- Hardcode sandbox base URL `https://api.sandbox.prodigi.com/v4.0` in the edge function (env-flag-ready for later).
 
-1. **Run Stripe eligibility check** (`recommend_payment_provider`) on the project to confirm Stripe is the right fit (digital + physical art prints — Stripe is appropriate; Paddle excludes physical goods).
+## 2. Database (migration)
+- Add to `products`:
+  - `prodigi_sku TEXT` — Prodigi's SKU (e.g. `GLOBAL-CFPM-16X20`)
+  - `prodigi_print_area TEXT` default `'default'`
+  - `prodigi_asset_url TEXT` — print-ready image URL (falls back to `hero_image_url`)
+- Add to `orders`:
+  - `prodigi_order_id TEXT`
+  - `prodigi_status TEXT`
+  - `prodigi_submitted_at TIMESTAMPTZ`
+  - `prodigi_last_error TEXT`
+  - `tracking_number TEXT`, `tracking_url TEXT`, `carrier TEXT`
+- Extend `order_status` enum if needed (`in_production`, `shipped`, `delivered`).
 
-2. **Enable Stripe payments** via `enable_stripe_payments`. This provisions a test (sandbox) Stripe environment immediately so we can wire and verify the webhook before going live. Going live later requires the user to claim/verify the Stripe account.
+## 3. Edge functions
+- **`submit-prodigi-order`** (service role, internal): given an `order_id`, loads order + items, maps each item's product → `prodigi_sku` + asset URL, POSTs to `/Orders` with shipping address and `merchantReference = order.id`. Stores `prodigi_order_id` + status. Idempotent (skips if already submitted).
+- **Wire into Stripe webhook** (`payments-webhook`): on `checkout.session.completed` → after marking order paid and sending order-confirmation email → invoke `submit-prodigi-order`. Failures are logged to `prodigi_last_error` but do not fail the webhook (admin can retry).
+- **`retry-prodigi-order`** (admin-only): manual retry from Admin UI.
 
-3. **Decide tax handling** (one short question after enable): full compliance handling, tax calculation only, or none. This affects only checkout session config — it does not block the webhook work.
+## 4. Admin UI (`src/pages/Admin.tsx`)
+- Products table: add `Prodigi SKU` + `Print Asset URL` editable fields.
+- Orders table: show `prodigi_status`, `prodigi_order_id`, tracking; add **Retry Prodigi** button when status is failed/missing.
 
-4. **Create checkout + webhook Edge Functions** following the post-enable Stripe knowledge that Lovable provides:
-   - `create-checkout` — creates a Stripe Checkout Session from the cart, stamps `metadata.order_id` (and `client_reference_id`) with the DB order id so the webhook can correlate.
-   - `stripe-webhook` — verifies the Stripe signature using `STRIPE_WEBHOOK_SECRET`, handles `checkout.session.completed` (and `payment_intent.succeeded` as a safety net), marks the order as paid in the DB, then invokes `send-transactional-email` with `templateName: "order-confirmation"` and `idempotencyKey: \`order-confirm-${order.id}\`` (same key used today, so no duplicate sends during the transition).
-   - Both functions registered in `supabase/config.toml` with `verify_jwt = false` for the webhook (Stripe can't send a JWT) and signature verification done in code.
+## 5. Out of scope (for follow-up)
+- Status sync from Prodigi back to orders (you skipped this question) — we'll leave a TODO in the webhook handler. Can be added via Prodigi status webhook or polling later, which would also trigger the shipping-notification email.
+- Live environment toggle.
 
-5. **Update `src/pages/Checkout.tsx`**:
-   - Remove the direct `send-transactional-email` call (lines around 147–151).
-   - Replace the current "create order then email" flow with: create order (status `pending_payment`) → call `create-checkout` → redirect to Stripe Checkout URL.
-   - On return, `CheckoutSuccess.tsx` just shows a confirmation — the email is now sent by the webhook, not the page.
+## Technical notes
+- Prodigi `/Orders` payload shape: `{ shippingMethod, recipient: {name,address:{line1,...,countryCode}}, items: [{ merchantReference, sku, copies, sizing:'fillPrintArea', assets:[{printArea:'default', url}] }] }`.
+- Map `orders.country` (already ISO-2) → `recipient.address.countryCode`.
+- Currency stays GBP on our side; Prodigi pricing handled separately on their dashboard.
+- Sandbox orders never actually print/ship.
 
-6. **Wire the webhook in Stripe**:
-   - After deploy, give the user the webhook URL (`https://<project>.functions.supabase.co/stripe-webhook`) and instruct them to add it in the Stripe Dashboard for events `checkout.session.completed` and `payment_intent.succeeded`.
-   - Add `STRIPE_WEBHOOK_SECRET` (and `STRIPE_SECRET_KEY` if not already present from the enable step) via the secrets tool.
-
-7. **Verify**:
-   - Trigger a test-mode checkout, confirm webhook log shows signature verified, order marked paid, and `send-transactional-email` invoked once.
-   - Confirm `email_send_log` has a single `sent` row for that `order-confirm-${order.id}` key.
-
-## Notes / Risks
-
-- Idempotency key is preserved (`order-confirm-${order.id}`) so if the webhook fires twice (Stripe retries), the email is sent only once.
-- Until the user adds the webhook secret in Stripe and pastes it into Lovable secrets, the webhook will reject events — order email won't send. We'll call this out clearly after deploy.
-- Live payments require the user to claim/verify the Stripe account in the Lovable Payments dashboard; test mode works immediately.
-
-Reply with **"Implement plan"** to proceed.
+After approval I will run the migration first, request the `PRODIGI_API_KEY` secret, then build the functions and admin wiring.

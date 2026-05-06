@@ -432,6 +432,7 @@ export type Database = {
         Row: {
           address_line1: string
           address_line2: string | null
+          carrier: string | null
           city: string
           country: string
           created_at: string
@@ -441,6 +442,10 @@ export type Database = {
           id: string
           phone: string | null
           postcode: string
+          prodigi_last_error: string | null
+          prodigi_order_id: string | null
+          prodigi_status: string | null
+          prodigi_submitted_at: string | null
           shipping_cost: number
           shipping_zone: string
           status: Database["public"]["Enums"]["order_status"]
@@ -448,12 +453,15 @@ export type Database = {
           stripe_session_id: string | null
           subtotal: number
           total: number
+          tracking_number: string | null
+          tracking_url: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           address_line1: string
           address_line2?: string | null
+          carrier?: string | null
           city: string
           country?: string
           created_at?: string
@@ -463,6 +471,10 @@ export type Database = {
           id?: string
           phone?: string | null
           postcode: string
+          prodigi_last_error?: string | null
+          prodigi_order_id?: string | null
+          prodigi_status?: string | null
+          prodigi_submitted_at?: string | null
           shipping_cost?: number
           shipping_zone: string
           status?: Database["public"]["Enums"]["order_status"]
@@ -470,12 +482,15 @@ export type Database = {
           stripe_session_id?: string | null
           subtotal: number
           total: number
+          tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           address_line1?: string
           address_line2?: string | null
+          carrier?: string | null
           city?: string
           country?: string
           created_at?: string
@@ -485,6 +500,10 @@ export type Database = {
           id?: string
           phone?: string | null
           postcode?: string
+          prodigi_last_error?: string | null
+          prodigi_order_id?: string | null
+          prodigi_status?: string | null
+          prodigi_submitted_at?: string | null
           shipping_cost?: number
           shipping_zone?: string
           status?: Database["public"]["Enums"]["order_status"]
@@ -492,6 +511,8 @@ export type Database = {
           stripe_session_id?: string | null
           subtotal?: number
           total?: number
+          tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -515,6 +536,9 @@ export type Database = {
           is_active: boolean | null
           is_launch_ready: boolean
           layout_mode: string
+          prodigi_asset_url: string | null
+          prodigi_print_area: string
+          prodigi_sku: string | null
           rating: number | null
           review_count: number | null
           risk_notes: string | null
@@ -545,6 +569,9 @@ export type Database = {
           is_active?: boolean | null
           is_launch_ready?: boolean
           layout_mode?: string
+          prodigi_asset_url?: string | null
+          prodigi_print_area?: string
+          prodigi_sku?: string | null
           rating?: number | null
           review_count?: number | null
           risk_notes?: string | null
@@ -575,6 +602,9 @@ export type Database = {
           is_active?: boolean | null
           is_launch_ready?: boolean
           layout_mode?: string
+          prodigi_asset_url?: string | null
+          prodigi_print_area?: string
+          prodigi_sku?: string | null
           rating?: number | null
           review_count?: number | null
           risk_notes?: string | null
@@ -829,6 +859,7 @@ export type Database = {
         | "delivered"
         | "cancelled"
         | "refunded"
+        | "in_production"
       product_badge: "best_seller" | "new" | "premium" | "hand_written"
       product_category:
         | "gita_quote"
@@ -975,6 +1006,7 @@ export const Constants = {
         "delivered",
         "cancelled",
         "refunded",
+        "in_production",
       ],
       product_badge: ["best_seller", "new", "premium", "hand_written"],
       product_category: [
