@@ -9,10 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatGBP } from "@/lib/pricing";
 import { toast } from "sonner";
-import { Package, ShoppingBag, Users, BookOpen, Languages, Printer } from "lucide-react";
+import { Package, ShoppingBag, Users, BookOpen, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MeaningsEditor } from "@/components/admin/MeaningsEditor";
-import { ProdigiSetupTab } from "@/components/admin/ProdigiSetupTab";
 
 export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
@@ -68,16 +67,6 @@ export default function Admin() {
     const { error } = await supabase.from("products").update(patch as any).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Saved");
-    refresh();
-  }
-  async function retryProdigi(orderId: string) {
-    toast.info("Submitting to Prodigi…");
-    const { data, error } = await supabase.functions.invoke("submit-prodigi-order", {
-      body: { order_id: orderId, force: true },
-    });
-    if (error) return toast.error(error.message);
-    if ((data as any)?.error) return toast.error((data as any).error);
-    toast.success("Sent to Prodigi");
     refresh();
   }
   async function updateStatus(id: string, status: string) {
@@ -151,7 +140,7 @@ export default function Admin() {
         <Tabs defaultValue="products">
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="prodigi"><Printer className="h-4 w-4 mr-1" />Prodigi Setup</TabsTrigger>
+            
             <TabsTrigger value="meanings"><Languages className="h-4 w-4 mr-1" />Meanings</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
@@ -167,8 +156,6 @@ export default function Admin() {
                     <th className="p-3">Base price</th>
                     <th className="p-3">Stock</th>
                     <th className="p-3">Sold</th>
-                    <th className="p-3">Prodigi SKU</th>
-                    <th className="p-3">Print asset URL</th>
                     <th className="p-3">Active</th>
                   </tr>
                 </thead>
@@ -205,22 +192,6 @@ export default function Admin() {
                       <td className={cn("p-3 font-mono", p.sold_count > 0 && "text-primary font-semibold")}>
                         {p.sold_count ?? 0}
                       </td>
-                      <td className="p-3">
-                        <Input
-                          defaultValue={p.prodigi_sku ?? ""}
-                          placeholder="GLOBAL-CFPM-16X20"
-                          onBlur={(e) => updateProductField(p.id, { prodigi_sku: e.target.value.trim() || null })}
-                          className="w-44 h-9 font-mono text-xs"
-                        />
-                      </td>
-                      <td className="p-3">
-                        <Input
-                          defaultValue={p.prodigi_asset_url ?? ""}
-                          placeholder="https://… (falls back to hero image)"
-                          onBlur={(e) => updateProductField(p.id, { prodigi_asset_url: e.target.value.trim() || null })}
-                          className="w-64 h-9 text-xs"
-                        />
-                      </td>
                       <td className="p-3">{p.is_active ? "✓" : "—"}</td>
                     </tr>
                   ))}
@@ -229,9 +200,6 @@ export default function Admin() {
             </div>
           </TabsContent>
 
-          <TabsContent value="prodigi" className="mt-6">
-            <ProdigiSetupTab products={products} onChanged={refresh} />
-          </TabsContent>
 
           <TabsContent value="meanings" className="mt-6">
             <MeaningsEditor />
@@ -247,7 +215,7 @@ export default function Admin() {
                     <th className="p-3">Customer</th>
                     <th className="p-3">Total</th>
                     <th className="p-3">Status</th>
-                    <th className="p-3">Prodigi</th>
+                    
                   </tr>
                 </thead>
                 <tbody>
@@ -266,27 +234,9 @@ export default function Admin() {
                           </SelectContent>
                         </Select>
                       </td>
-                      <td className="p-3 text-xs">
-                        {o.prodigi_order_id ? (
-                          <div>
-                            <p className="font-mono">{o.prodigi_order_id.slice(0, 10)}…</p>
-                            <p className="text-brand-mid">{o.prodigi_status}</p>
-                          </div>
-                        ) : o.prodigi_last_error ? (
-                          <p className="text-destructive max-w-[200px] truncate" title={o.prodigi_last_error}>
-                            ⚠ {o.prodigi_last_error}
-                          </p>
-                        ) : (
-                          <span className="text-brand-mid">—</span>
-                        )}
-                        <Button size="sm" variant="outline" className="mt-1 h-7 text-xs"
-                          onClick={() => retryProdigi(o.id)}>
-                          {o.prodigi_order_id ? "Resubmit" : "Send to Prodigi"}
-                        </Button>
-                      </td>
                     </tr>
                   ))}
-                  {orders.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-brand-mid">No orders yet</td></tr>}
+                  {orders.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-brand-mid">No orders yet</td></tr>}
                 </tbody>
               </table>
             </div>

@@ -167,16 +167,6 @@ export default function Checkout() {
         console.warn("order confirmation email enqueue failed", e);
       }
 
-      // Submit to Prodigi for fulfilment (sandbox). Non-blocking — admin can retry from dashboard.
-      // TODO: move into Stripe webhook once real payment flow is wired.
-      try {
-        await supabase.functions.invoke("submit-prodigi-order", {
-          body: { order_id: order.id },
-        });
-      } catch (e) {
-        console.warn("prodigi submission failed", e);
-      }
-
       cart.clear();
       navigate(`/checkout/success?order=${order.id}`);
     } catch (err: any) {
@@ -218,10 +208,10 @@ export default function Checkout() {
             </div>
           </fieldset>
 
-          <Button type="submit" disabled={submitting} size="lg" className="w-full bg-gradient-saffron text-primary-foreground border-0 h-12">
-            {submitting ? "Processing…" : `Pay with Stripe 🔒 — ${formatGBP(total)}`}
+          <Button type="submit" disabled size="lg" className="w-full bg-muted text-muted-foreground border-0 h-12 cursor-not-allowed">
+            Store closed — orders are no longer being accepted
           </Button>
-          <p className="text-xs text-brand-mid text-center">Phase 1 demo: payment is simulated. No card is charged.</p>
+          <p className="text-xs text-brand-mid text-center">This store is no longer accepting orders.</p>
         </form>
 
         <aside className="lg:sticky lg:top-24 self-start space-y-4">
