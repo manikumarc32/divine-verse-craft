@@ -28,6 +28,7 @@ export interface ProductSummary {
   hero_image_url?: string | null;
   layout_mode?: string | null;
   rating: number;
+  review_count?: number | null;
   stock_limit?: number | null;
   sold_count?: number | null;
 }
