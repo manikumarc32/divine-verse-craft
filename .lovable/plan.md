@@ -1,28 +1,78 @@
-## Goal
-Stop displaying the placeholder 4.8 ★ rating that appears on every product even when no real customer reviews exist.
+# Backup Plan — Pre-Transfer Restore Point
 
-## Where fake ratings show today
-1. **Product cards** (`src/components/ProductCard.tsx`) — always shows star + "4.8" on every product in Shop, Bundles, related products
-2. **Product detail page** (`src/pages/ProductDetail.tsx`) — already correctly hidden when `review_count = 0`, no change needed
-3. **Homepage hero stat** (`src/pages/Index.tsx` line 99) — hardcoded "4.8 ★ Rating" stat tile
-4. **Shop sort dropdown** (`src/pages/Shop.tsx` line 98) — "Top Rated" sort option (relies on the fake rating)
+Goal: produce a downloadable archive containing **everything you'd need to rebuild this project** if the transfer goes wrong.
 
-## Changes
+## What gets backed up
 
-**`src/components/ProductCard.tsx`**
-- Only render the star + rating block when `review_count > 0`. Otherwise hide the rating entirely.
+### 1. Database (all tables → CSV + JSON)
+Every table in your backend exported as both CSV (easy to read in Excel) and JSON (easy to re-import):
 
-**`src/pages/Index.tsx`**
-- Replace the hardcoded "4.8 ★ Rating" stat tile with something honest, e.g. "Free UK Shipping" or "Handcrafted in UK" — keeps the 3-stat layout intact.
-- Leave the testimonials section as-is (those are written quotes, not numerical ratings).
+- `products`, `bundles`, `bundle_items`
+- `orders`, `order_items`
+- `profiles`, `user_roles`
+- `reviews`, `wishlists`
+- `blog_posts`
+- `frames`, `materials`, `sizes`, `shipping_zones`
+- `contact_messages`, `newsletter_subscribers`, `india_signups`
+- `custom_quote_drafts`
+- `email_send_log`, `email_send_state`, `email_unsubscribe_tokens`, `suppressed_emails`
 
-**`src/pages/Shop.tsx`**
-- Remove the "Top Rated" option from the sort dropdown (would sort by fake data).
+Auth users (`auth.users`) cannot be exported via SQL — Supabase keeps password hashes private. A list of user emails + IDs + roles will be included so you can re-invite them if needed.
 
-## Out of scope
-- Product detail page (already gated correctly)
-- Database column removal — keep `rating` and `review_count` columns; they'll populate naturally as real reviews come in via the existing reviews table
-- Testimonial quotes on homepage (real-looking, not numeric ratings)
+### 2. Database schema
+- Full SQL dump of table definitions, RLS policies, functions, triggers, enums
+- Lets you recreate the exact same database structure on a fresh project
 
-## Result
-No fake numbers anywhere on the storefront. Once real customers leave reviews, ratings will appear automatically.
+### 3. Storage buckets (file inventory)
+- List of all files in `product-images`, `reference-backgrounds`, `custom-uploads`, `digital-bonuses` with public URLs where applicable
+- Note: actual file *contents* in private buckets can't be bulk-downloaded from here — I'll include a script you can run later if needed
+
+### 4. Configuration snapshot
+- `supabase/config.toml`
+- List of edge functions deployed
+- List of secret **names** (values stay hidden — you'll re-enter them on the new account: Stripe, Prodigi, etc.)
+- `.env` variable names
+
+### 5. Codebase
+- Already in your Lovable project + GitHub (if connected). I'll remind you to download the codebase ZIP from the Code Editor as a final safety copy.
+
+## Output
+
+Single zip file at `/mnt/documents/divine-verse-craft-backup-{date}.zip` containing:
+```
+backup/
+  data/
+    products.csv, products.json
+    orders.csv, orders.json
+    ... (one pair per table)
+    auth-users-list.csv
+  schema/
+    schema.sql
+    rls-policies.sql
+    functions.sql
+  storage/
+    bucket-inventory.json
+  config/
+    supabase-config.toml
+    edge-functions.txt
+    secret-names.txt
+    env-vars.txt
+  README.md  (restore instructions)
+```
+
+## Restore instructions (included in README)
+
+If the transfer fails, on a fresh Lovable project you would:
+1. Run `schema.sql` to recreate tables
+2. Re-add secrets (names listed in `secret-names.txt`)
+3. Bulk-import CSVs back into tables
+4. Re-invite users from `auth-users-list.csv`
+5. Re-upload storage files
+
+## Not included / limitations
+
+- **Auth user passwords** — never exportable; users would need to reset
+- **Stripe/Prodigi data** — lives in those services, not in your DB
+- **Private storage file contents** — inventory only; bulk download needs a separate script
+
+Approve and I'll generate the zip.
