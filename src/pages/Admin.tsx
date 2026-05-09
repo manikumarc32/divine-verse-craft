@@ -9,10 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatGBP } from "@/lib/pricing";
 import { toast } from "sonner";
-import { Package, ShoppingBag, Users, BookOpen, Languages, Printer } from "lucide-react";
+import { Package, ShoppingBag, Users, BookOpen, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MeaningsEditor } from "@/components/admin/MeaningsEditor";
-import { ProdigiSetupTab } from "@/components/admin/ProdigiSetupTab";
 
 export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
@@ -70,14 +69,6 @@ export default function Admin() {
     toast.success("Saved");
     refresh();
   }
-  async function retryProdigi(orderId: string) {
-    toast.info("Submitting to Prodigi…");
-    const { data, error } = await supabase.functions.invoke("submit-prodigi-order", {
-      body: { order_id: orderId, force: true },
-    });
-    if (error) return toast.error(error.message);
-    if ((data as any)?.error) return toast.error((data as any).error);
-    toast.success("Sent to Prodigi");
     refresh();
   }
   async function updateStatus(id: string, status: string) {
