@@ -96,7 +96,7 @@ export default function Home() {
       <section className="bg-brand-dark text-brand-cream border-b border-brand-cream/10">
         <div className="container py-8 grid grid-cols-3 gap-6 max-w-2xl mx-auto">
           <Stat n="150+" l={t("stat.designs")} />
-          <Stat n="4.8 ★" l={t("stat.rating")} />
+          <Stat n="Free" l="UK Shipping" />
           <Stat n="🇬🇧" l={t("stat.uk")} />
         </div>
       </section>
