@@ -28,6 +28,7 @@ export interface ProductSummary {
   hero_image_url?: string | null;
   layout_mode?: string | null;
   rating: number;
+  review_count?: number | null;
   stock_limit?: number | null;
   sold_count?: number | null;
 }
@@ -113,10 +114,12 @@ export function ProductCard({ product }: { product: ProductSummary }) {
             <p className="telugu text-xs text-brand-mid mb-2 line-clamp-2">{product.telugu_meaning}</p>
           )}
           <div className="flex items-center justify-between gap-2 text-xs text-brand-mid mb-3">
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-accent text-accent" />
-              <span>{Number(product.rating).toFixed(1)}</span>
-            </div>
+            {(product.review_count ?? 0) > 0 ? (
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-accent text-accent" />
+                <span>{Number(product.rating).toFixed(1)}</span>
+              </div>
+            ) : <span />}
             {(product.deeper_meaning || product.deeper_meaning_te || product.sanskrit) && (
               <VerseMeaningDialog
                 title={product.title}
