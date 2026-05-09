@@ -69,8 +69,6 @@ export default function Admin() {
     toast.success("Saved");
     refresh();
   }
-    refresh();
-  }
   async function updateStatus(id: string, status: string) {
     const prev = orders.find((o) => o.id === id);
     const { error } = await supabase.from("orders").update({ status: status as any }).eq("id", id);
